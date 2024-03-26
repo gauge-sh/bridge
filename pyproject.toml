@@ -1,0 +1,40 @@
+[project]
+name = "bridge-sdk"
+version = "0.0.0"
+authors = [
+  { name="Caelean Barnes", email="caeleanb@gmail.com" },
+  { name="Evan Doyle", email="evanmdoyle@gmail.com" },
+]
+description = "A Python tool to abstract your Django infrastructure."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+keywords = ['python', 'deployment', 'local', 'infrastructure', 'postgres', 'django', 'architecture']
+
+[project.urls]
+Homepage = "https://github.com/never-over/bridge-sdk"
+Issues = "https://github.com/never-over/bridge-sdk/issues"
+
+
+[tool.pyright]
+include = ["bridge-sdk"]
+exclude = ["**/__pycache__"]
+strict = ["bridge-sdk"]
+
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
