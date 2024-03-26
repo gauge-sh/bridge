@@ -41,7 +41,7 @@ jobs:
     - name: Check types with pyright
       run: |
         pyright .
-    - name: Check modguard
+    - name: Check bridge
       run: |
         pip install .
         modguard check --exclude tests .

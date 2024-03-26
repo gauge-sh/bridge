@@ -23,6 +23,9 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 keywords = ['python', 'deployment', 'local', 'infrastructure', 'postgres', 'django', 'architecture']
+dependencies = [
+    "docker==7.0.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/never-over/bridge-sdk"
