@@ -1,57 +1,57 @@
 # Responsible for postgres
+import os
 from time import sleep
 
+
+from bridge.service.docker import DockerService, ContainerConfig
+import psycopg
+from pydantic import BaseModel, Field
 import docker
 
 
-def pull_image(client: docker.DockerClient):
-    if not client.images.list(name="postgres:12"):
-        print("Postgres image not found, pulling...")
-        client.images.pull("postgres:12")
-        print("Postgres image pulled!")
+class PostgresEnvironment(BaseModel):
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_DB: str = "postgres"
+    POSTGRES_HOST: str = "localhost"
+    POSTGRES_PORT: str = "5432"
 
 
-def start_container(client: docker.DockerClient):
-    env_vars = {
-        "POSTGRES_USER": "postgres",  # todo parameterize
-        "POSTGRES_PASSWORD": "postgres",
-        "POSTGRES_DB": "postgres",
-    }
-    containers = client.containers.list(filters={"name": "bridge_postgres"}, all=True)
-    if containers:
-        # Container names are unique
-        [container] = containers
-        if container.status in ["restarting", "paused", "exited"]:
-            print("Container in bad state, restarting")
-            container.restart()
-            print("Container restarted")
-        else:
-            print("Container found!")
-    else:
-        # Create and start the container
-        print("Creating container")
-        client.containers.run(
-            "postgres:12",  # Image name
-            environment=env_vars,
-            ports={
-                "5432/tcp": 5432
-            },  # Map PostgreSQL port 5432 inside the container to port 5432 on the host
-            detach=True,
-            name="bridge_postgres",
-            # remove=True, this would remove the container once it stops running
-            # restart_policy=... could have the container continually restart and make itself available
-            volumes={},
+def resolve_pg_data_path():
+    return os.path.abspath("./pgdata")
+
+
+class PostgresConfig(ContainerConfig):
+    image: str = "postgres:12"
+    name: str = "bridge_postgres"
+    ports: dict = {"5432/tcp": 5432}
+    volumes: dict = Field(
+        default_factory=lambda: {
+            resolve_pg_data_path(): {"bind": "/var/lib/postgresql/data", "mode": "rw"}
+        }
+    )
+    environment: PostgresEnvironment = PostgresEnvironment()
+
+
+class PostgresService(DockerService):
+    def __init__(self, client: docker.DockerClient, config: PostgresConfig) -> None:
+        super().__init__(client, config)
+
+    def ensure_ready(self):
+        print("Waiting for PostgreSQL to be ready...")
+        dsn = (
+            f"dbname={self.config.environment.POSTGRES_DB} "
+            f"user={self.config.environment.POSTGRES_USER} "
+            f"password={self.config.environment.POSTGRES_PASSWORD} "
+            f"host={self.config.environment.POSTGRES_HOST} "
+            f"port={self.config.environment.POSTGRES_PORT}"
         )
-    sleep(3)
-
-
-def get_config(client: docker.DockerClient):
-    pull_image(client)
-    start_container(client)
-    return {
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "localhost",
-        "PORT": 5432,
-    }
+        while True:
+            try:
+                with psycopg.connect(dsn) as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("SELECT 1")
+                        print("PostgreSQL is ready.")
+                        return
+            except psycopg.OperationalError:
+                sleep(0.1)

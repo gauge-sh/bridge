@@ -80,7 +80,7 @@ WSGI_APPLICATION = "django_bridge.wsgi.application"
 from bridge.framework import django
 
 django.configure(locals())
-print(DATABASES)
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
