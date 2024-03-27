@@ -2,7 +2,7 @@
 import sys
 
 import docker
-from service import postgres
+from bridge.service import postgres
 
 
 def get_docker_client() -> docker.DockerClient:
@@ -18,8 +18,9 @@ def get_docker_client() -> docker.DockerClient:
 def build_environment(): ...
 
 
-def get_config(postgres=True):
+def get_config(has_postgres=True):
     client = get_docker_client()
     config = {}  # TODO make this a pydantic model
-    if postgres:
+    if has_postgres:
         config["postgres"] = postgres.get_config(client)
+    return config

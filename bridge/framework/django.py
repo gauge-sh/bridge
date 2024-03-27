@@ -1,19 +1,18 @@
-import service.docker
-from bridge.service.docker import get_config
+from bridge.service import docker
 
 
 def configure(settings_locals: dict, postgres=True) -> None:
     if postgres and "DATABASES" in settings_locals:
         raise
-    config = service.docker.get_config(postgres=postgres)
+    config = docker.get_config(has_postgres=postgres)
     if postgres:
         settings_locals["DATABASES"] = {
             "default": {
                 "ENGINE": "django.db.backends.postgresql",
-                "NAME": config["postgres"]["name"],
-                "USER": config["postgres"]["user"],
-                "PASSWORD": config["postgres"]["password"],
-                "HOST": "db",  # set in docker-compose.yml - should this be parameterized?
-                "PORT": 5432,  # default postgres port - should this be unique?
+                "NAME": config["postgres"]["NAME"],
+                "USER": config["postgres"]["USER"],
+                "PASSWORD": config["postgres"]["PASSWORD"],
+                "HOST": config["postgres"]["HOST"],
+                "PORT": config["postgres"]["PORT"],
             }
         }
