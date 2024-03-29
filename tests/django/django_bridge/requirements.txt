@@ -1,0 +1,20 @@
+annotated-types==0.6.0
+asgiref==3.8.1
+-e file:///Users/caeleanbarnes/Projects/Work/bridge/bridge-sdk
+build==1.1.1
+certifi==2024.2.2
+charset-normalizer==3.3.2
+django==5.0.3
+docker==7.0.0
+idna==3.6
+packaging==24.0
+psycopg==3.1.18
+psycopg-binary==3.1.18
+pydantic==2.6.4
+pydantic-core==2.16.3
+pyproject-hooks==1.0.0
+requests==2.31.0
+ruff==0.3.4
+sqlparse==0.4.4
+typing-extensions==4.10.0
+urllib3==2.2.1
