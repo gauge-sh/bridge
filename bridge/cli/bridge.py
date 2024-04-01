@@ -1,5 +1,6 @@
 import argparse
-from bridge.cli.deploy import deploy
+
+from bridge.cli.deploy.django import DjangoDeployer
 
 
 def main():
@@ -63,7 +64,8 @@ def main():
     # Here, you would add your logic to handle each command based on args.command, args.deploy_command, etc.
     if args.command == "deploy":
         if args.deploy_command is None:
-            deploy(args)
+            # assume django for now
+            DjangoDeployer(bucket_name="never-over-bridge-test").deploy()
         elif args.deploy_command == "list":
             print("Listing deployments...")
         elif args.deploy_command == "rollback":
