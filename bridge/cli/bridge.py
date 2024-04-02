@@ -59,9 +59,7 @@ def main():
 
     # Parse the arguments
     args = parser.parse_args()
-    print(f"Arguments: {args}")
 
-    # Here, you would add your logic to handle each command based on args.command, args.deploy_command, etc.
     if args.command == "deploy":
         if args.deploy_command is None:
             # assume django for now

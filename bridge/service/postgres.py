@@ -2,11 +2,12 @@
 import os
 from time import sleep
 
-
-from bridge.service.docker import DockerService, ContainerConfig
+import docker
 import psycopg
 from pydantic import BaseModel, Field
-import docker
+
+from bridge.console import log_task
+from bridge.service.docker import ContainerConfig, DockerService
 
 
 class PostgresEnvironment(BaseModel):
@@ -38,7 +39,6 @@ class PostgresService(DockerService):
         super().__init__(client, config)
 
     def ensure_ready(self):
-        print("Waiting for PostgreSQL to be ready...")
         dsn = (
             f"dbname={self.config.environment.POSTGRES_DB} "
             f"user={self.config.environment.POSTGRES_USER} "
@@ -46,12 +46,14 @@ class PostgresService(DockerService):
             f"host={self.config.environment.POSTGRES_HOST} "
             f"port={self.config.environment.POSTGRES_PORT}"
         )
-        while True:
-            try:
-                with psycopg.connect(dsn) as conn:
-                    with conn.cursor() as cur:
+        with log_task(
+            start_message=f"Waiting for [white]{self.config.name}[/white] to be ready",
+            end_message=f"[white]{self.config.name}[/white] is ready",
+        ):
+            while True:
+                try:
+                    with psycopg.connect(dsn) as conn, conn.cursor() as cur:
                         cur.execute("SELECT 1")
-                        print("PostgreSQL is ready.")
                         return
-            except psycopg.OperationalError:
-                sleep(0.1)
+                except psycopg.OperationalError:
+                    sleep(0.1)

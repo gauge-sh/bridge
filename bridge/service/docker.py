@@ -1,17 +1,18 @@
 import sys
-from typing import Optional
-
-import docker
 from abc import ABC, abstractmethod
 
+import docker
 from pydantic import BaseModel
+from rich.console import Console
+
+from bridge.console import log_error, log_task
 
 
 def get_docker_client() -> docker.DockerClient:
     try:
         client = docker.from_env()
     except docker.errors.DockerException:
-        print("❌ Bridge Error: Make sure docker is installed and running.")
+        log_error("Make sure docker is installed and running")
         sys.exit(1)
 
     return client
@@ -39,38 +40,43 @@ class DockerService(ABC):
         # todo add self.container - should we start or fetch the container on startup?
 
     def start(self):
+        console = Console()
+        console.print(
+            f"[bold bright_green]Setting up service [white]{self.config.name}[/white]..."
+        )
         self.pull_image()
         self.start_container()
         self.ensure_ready()
+        console.print(
+            f"[bold bright_green]Service [white]{self.config.name}[/white] started!"
+        )
 
     def pull_image(self):
-        if not self.client.images.list(name=self.config.image):
-            print(f"Image {self.config.image} not found. Pulling...")
-            self.client.images.pull(self.config.image)
-            print("Image pulled successfully.")
+        with log_task(
+            start_message=f"Pulling [white]{self.config.image}",
+            end_message=f"Image [white]{self.config.image}[/white] pulled",
+        ):
+            if not self.client.images.list(name=self.config.image):
+                self.client.images.pull(self.config.image)
 
     def start_container(self):
-        self.pull_image()
-        containers = self.client.containers.list(
-            filters={"name": self.config.name}, all=True
-        )
-        if containers:
-            # Container names are unique, there are 1 or 0 results
-            [container] = containers
-            if container.status in ["paused", "exited"]:
-                print(
-                    f"Container {self.config.name} in bad state ({container.status}), restarting..."
-                )
-                container.restart()
-            else:
-                print(f"Container {self.config.name} already running.")
-        else:
-            print(f"Creating and starting container {self.config.name}...")
-            self.client.containers.run(
-                **self.config.dict(),
-                detach=True,
+        with log_task(
+            start_message=f"Starting container [white]{self.config.name}[/white]",
+            end_message=f"Container [white]{self.config.name}[/white] started",
+        ):
+            containers = self.client.containers.list(
+                filters={"name": self.config.name}, all=True
             )
-            print(f"Container {self.config.name} created and started.")
+            if containers:
+                # Container names are unique, there are 1 or 0 results
+                [container] = containers
+                if container.status in ["paused", "exited"]:
+                    container.restart()
+            else:
+                self.client.containers.run(
+                    **self.config.dict(),
+                    detach=True,
+                )
 
     @abstractmethod
     def ensure_ready(self) -> None: ...
