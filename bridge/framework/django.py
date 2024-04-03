@@ -22,6 +22,8 @@ class DjangoHandler(FrameWorkHandler):
                 "PORT": environment.POSTGRES_PORT,
             }
         }
+        if os.environ.get("IS_BRIDGE_PLATFORM"):
+            self.framework_locals["ALLOWED_HOSTS"].append(os.environ["BRIDGE_HOST"])
 
 
 def configure(settings_locals: dict, enable_postgres=True) -> None:
