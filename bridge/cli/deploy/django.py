@@ -11,8 +11,8 @@ class DjangoDeployer(DeployHandler):
 
     def validate(self):
         with log_task(
-            start_message="Validating Django project integrity...",
-            end_message="Django project valid",
+            start_message="Validating project...",
+            end_message="Project is valid",
         ):
             manage_py_path = self.project_root / "manage.py"
             if not manage_py_path.exists():

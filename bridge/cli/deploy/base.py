@@ -1,3 +1,4 @@
+import os
 import sys
 import tempfile
 import uuid
@@ -5,10 +6,13 @@ import zipfile
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+import requests
 from google.cloud import storage
 from rich.console import Console
 
-from bridge.console import log_task
+from bridge.console import log_error, log_task
+
+API_URL = "https://api.bridge-cli.com/api/v0.1/deploy"
 
 
 class DeployHandler(ABC):
@@ -16,7 +20,7 @@ class DeployHandler(ABC):
         self.python_path = (
             sys.executable
         )  # TODO need to better interpret and utilize this
-        self.project_root = Path(project_root)
+        self.project_root = Path(os.path.abspath(project_root))
         self.bucket_name = bucket_name
         if not deploy_name:
             deploy_name = str(uuid.uuid4())
@@ -43,7 +47,7 @@ class DeployHandler(ABC):
                         zipf.write(file_path, file_path.relative_to(self.project_root))
         return zip_path
 
-    def upload(self, zip_path: Path):
+    def upload(self, zip_path: Path) -> str:
         with log_task(
             start_message="Uploading bundle...", end_message="Bundle uploaded"
         ):
@@ -52,6 +56,29 @@ class DeployHandler(ABC):
             destination_blob_name = f"deploys/{self.deploy_name}.zip"
             blob = bucket.blob(destination_blob_name)
             blob.upload_from_filename(str(zip_path))
+            public_url = blob.public_url
+            return public_url
+
+    def trigger(self, project_name, source_url):
+        with log_task(
+            start_message="Triggering deploy...", end_message="Deploy triggered"
+        ):
+            data = {
+                "name": self.deploy_name,
+                "project_name": project_name,
+                "source_url": source_url,
+            }
+            resp = requests.post(API_URL, json=data)
+            if resp.status_code != 200:
+                log_error("Failed to trigger the deploy")
+                sys.exit(1)
+
+    def check_status(self):
+        with log_task(
+            start_message="Checking deploy status...", end_message="Status green"
+        ):
+            while True:
+                print(requests.get(API_URL))
 
     def deploy(self):
         console = Console()
@@ -59,5 +86,10 @@ class DeployHandler(ABC):
         self.validate()
         with tempfile.TemporaryDirectory() as temp_dir:
             zip_path = self.bundle(temp_dir)
-            self.upload(zip_path)
+            url = self.upload(zip_path)
+            project_name = (
+                self.project_root.name
+            )  # TODO we should infer an asgi or wsgi entrypoint
+            self.trigger(project_name=project_name, source_url=url)
+            self.check_status()
         console.print(f"[bold white]{self.deploy_name[:8]} [bold green]deployed!")
