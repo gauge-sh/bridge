@@ -5,6 +5,7 @@ import uuid
 import zipfile
 from abc import ABC, abstractmethod
 from pathlib import Path
+from time import sleep
 
 import requests
 from google.cloud import storage
@@ -64,25 +65,40 @@ class DeployHandler(ABC):
             start_message="Triggering deploy...", end_message="Deploy triggered"
         ):
             data = {
-                "name": self.deploy_name,
+                "name": self.deploy_name[:8],
                 "project_name": project_name,
                 "source_url": source_url,
             }
             resp = requests.post(API_URL, json=data)
             if resp.status_code != 200:
+                print(resp.status_code, resp.content)
                 log_error("Failed to trigger the deploy")
                 sys.exit(1)
 
     def check_status(self):
         with log_task(
-            start_message="Checking deploy status...", end_message="Status green"
+            start_message="Checking deploy status...", end_message="Status updated"
         ):
-            while True:
-                print(requests.get(API_URL))
+            status = "pending"
+            while status == "pending":
+                resp = requests.get(API_URL)
+                sleep(0.1)
+                if resp.status_code == 200:
+                    deployment_data = resp.json()
+                    for deployment in deployment_data["deployments"]:
+                        if deployment["name"] == self.deploy_name[:8]:
+                            status = deployment["status"]
+                            if status == "error":
+                                log_error(deployment["debug"])
+                            break
+                else:
+                    sleep(3)
 
     def deploy(self):
         console = Console()
-        console.print("Deploying...", style="bold green")
+        console.print(
+            f"Deploying [bold white]{self.project_root.name}[bold green] as [bold white]{self.deploy_name[:8]}[bold green]...",
+        )
         self.validate()
         with tempfile.TemporaryDirectory() as temp_dir:
             zip_path = self.bundle(temp_dir)
