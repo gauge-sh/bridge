@@ -19,7 +19,12 @@ class PostgresEnvironment(BaseModel):
 
 
 def resolve_pg_data_path():
-    return os.path.abspath("./pgdata")
+    # TODO create a folder per project or separate db for each
+    current_file_dir = os.path.dirname(os.path.abspath(__file__))
+    dir_path = os.path.join(current_file_dir, "pgdata")
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    return dir_path
 
 
 class PostgresConfig(ContainerConfig):
