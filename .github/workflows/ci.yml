@@ -41,7 +41,7 @@ jobs:
         uv pip install -r requirements.txt
         coverage run --branch --source=../../../ ./manage.py check
         coverage report
-        cd ../..
+        cd ../../../
     - name: Check types with pyright
       run: |
         source .venv/bin/activate
