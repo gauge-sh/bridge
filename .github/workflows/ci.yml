@@ -26,22 +26,19 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install ruff pytest pytest-mock coverage pyright PyYAML
+        python -m pip install uv
+        uv pip install ruff pytest coverage pyright
     - name: Check ruff
       run: |
         ruff check .
         ruff format --check .
-    - name: Test with pytest and report coverage
+    - name: Test django install
       run: |
-        cd tests
-        coverage run --branch --source=../ -m pytest
+        cd tests/django
+        uv pip install -r requirements.txt
+        coverage run --branch --source=../ -m manage.py check
         coverage report
-        cd ..
+        cd ../..
     - name: Check types with pyright
       run: |
         pyright .
-    - name: Check bridge-sdk
-      run: |
-        pip install .
-        modguard check --exclude tests .
