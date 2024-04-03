@@ -22,7 +22,8 @@ class ContainerConfig(BaseModel):
     """
     Container configuration information.
 
-    All of the data needed to start a container. Matches the method signature of `docker.container.create()`
+    All of the data needed to start a container.
+    Matches the method signature of `docker.container.create()`
     """
 
     image: str
@@ -42,7 +43,8 @@ class DockerService(ABC):
     def start(self):
         console = Console()
         console.print(
-            f"[bold bright_green]Setting up service [white]{self.config.name}[/white]..."
+            f"[bold bright_green]Setting up service "
+            f"[white]{self.config.name}[/white]..."
         )
         self.pull_image()
         self.start_container()

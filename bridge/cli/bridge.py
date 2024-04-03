@@ -10,13 +10,12 @@ def main():
 
     # Parser for 'deploy' command
     deploy_parser = subparsers.add_parser("deploy", help="Deploy help")
-    deploy_subparsers = deploy_parser.add_subparsers(
-        dest="deploy_command", help="Deploy sub-command help"
-    )
+    deploy_parser.add_subparsers(dest="deploy_command", help="Deploy sub-command help")
 
     # # Sub-parser for 'deploy' without sub-commands but with optional args
     # deploy_parser.add_argument(
-    #     "optional_args", nargs="*", help="Optional arguments for deploy", required=False
+    #     "optional_args", nargs="*", help="Optional arguments for deploy",
+    #     required=False
     # )
     #
     # # Sub-parser for 'deploy list'
@@ -52,10 +51,10 @@ def main():
     # )
 
     # Parser for 'shell' command
-    shell_parser = subparsers.add_parser("shell", help="Open a shell")
+    subparsers.add_parser("shell", help="Open a shell")
 
     # Parser for 'logs' command
-    logs_parser = subparsers.add_parser("logs", help="Show logs")
+    subparsers.add_parser("logs", help="Show logs")
 
     # Parse the arguments
     args = parser.parse_args()
