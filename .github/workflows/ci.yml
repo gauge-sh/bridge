@@ -31,10 +31,12 @@ jobs:
         uv pip install ruff pytest coverage pyright
     - name: Check ruff
       run: |
+        source .venv/bin/activate
         ruff check .
         ruff format --check .
     - name: Test django install
       run: |
+        source .venv/bin/activate
         cd tests/django
         uv pip install -r requirements.txt
         coverage run --branch --source=../ -m manage.py check
@@ -42,4 +44,5 @@ jobs:
         cd ../..
     - name: Check types with pyright
       run: |
+        source .venv/bin/activate
         pyright .
