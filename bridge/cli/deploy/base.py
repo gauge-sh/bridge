@@ -97,7 +97,8 @@ class DeployHandler(ABC):
     def deploy(self):
         console = Console()
         console.print(
-            f"Deploying [bold white]{self.project_root.name}[bold green] as [bold white]{self.deploy_name[:8]}[bold green]...",
+            f"Deploying [bold white]{self.project_root.name}"
+            f"[bold green] as [bold white]{self.deploy_name[:8]}[bold green]...",
         )
         self.validate()
         with tempfile.TemporaryDirectory() as temp_dir:
