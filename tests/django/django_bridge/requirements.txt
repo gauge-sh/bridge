@@ -1,2 +1,2 @@
-python-bridge==0.0.7
+python-bridge
 django==5.0.3

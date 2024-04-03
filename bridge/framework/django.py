@@ -1,4 +1,4 @@
-import os.path
+import os
 
 from bridge.console import log_warning
 from bridge.framework.base import FrameWorkHandler
