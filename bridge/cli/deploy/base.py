@@ -14,6 +14,7 @@ from rich.console import Console
 from bridge.console import log_error, log_task
 
 API_URL = "https://api.bridge-cli.com/api/v0.1/deploy"
+DEMO_URL = "demo.bridge-cli.com"
 
 
 class DeployHandler(ABC):
@@ -112,4 +113,4 @@ class DeployHandler(ABC):
             self.trigger(project_name=project_name, source_url=url)
             deployment_url = self.retrieve()
         console.print(f"[bold white]{self.deploy_name[:8]} [bold green]deployed!")
-        console.print(f"[blue]{deployment_url}")
+        console.print(f"[blue]https://{deployment_url if deployment_url else DEMO_URL}")

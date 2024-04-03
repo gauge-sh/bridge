@@ -1,5 +1,6 @@
 import os
 
+from bridge.cli.deploy.base import DEMO_URL
 from bridge.console import log_warning
 from bridge.framework.base import FrameWorkHandler
 from bridge.service.postgres import PostgresEnvironment
@@ -23,7 +24,10 @@ class DjangoHandler(FrameWorkHandler):
             }
         }
         if os.environ.get("IS_BRIDGE_PLATFORM"):
-            self.framework_locals["ALLOWED_HOSTS"].append(os.environ["BRIDGE_HOST"])
+            self.framework_locals["ALLOWED_HOSTS"] += [
+                os.environ["BRIDGE_HOST"],
+                DEMO_URL,
+            ]
 
 
 def configure(settings_locals: dict, enable_postgres=True) -> None:
