@@ -37,9 +37,9 @@ jobs:
     - name: Test django install
       run: |
         source .venv/bin/activate
-        cd tests/django
+        cd tests/django/django_bridge
         uv pip install -r requirements.txt
-        coverage run --branch --source=../../ ./manage.py check
+        coverage run --branch --source=../../../ ./manage.py check
         coverage report
         cd ../..
     - name: Check types with pyright
