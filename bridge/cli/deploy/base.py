@@ -75,7 +75,7 @@ class DeployHandler(ABC):
                 log_error("Failed to trigger the deploy")
                 sys.exit(1)
 
-    def check_status(self):
+    def retrieve(self):
         with log_task(
             start_message="Checking deploy status...", end_message="Status updated"
         ):
@@ -90,6 +90,8 @@ class DeployHandler(ABC):
                             status = deployment["status"]
                             if status == "error":
                                 log_error(deployment["debug"])
+                            elif status == "deployed":
+                                return deployment.get("deploy_url", "[deployment_url]")
                             break
                 else:
                     sleep(3)
@@ -108,5 +110,6 @@ class DeployHandler(ABC):
                 self.project_root.name
             )  # TODO we should infer an asgi or wsgi entrypoint
             self.trigger(project_name=project_name, source_url=url)
-            self.check_status()
+            deployment_url = self.retrieve()
         console.print(f"[bold white]{self.deploy_name[:8]} [bold green]deployed!")
+        console.print(f"[blue]{deployment_url}")
