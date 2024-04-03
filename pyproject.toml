@@ -1,6 +1,6 @@
 [project]
-name = "bridge"
-version = "0.0.0"
+name = "python-bridge"
+version = "0.0.1"
 authors = [
   { name="Caelean Barnes", email="caeleanb@gmail.com" },
   { name="Evan Doyle", email="evanmdoyle@gmail.com" },
@@ -32,14 +32,14 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/never-over/bridge-sdk"
-Issues = "https://github.com/never-over/bridge-sdk/issues"
+Homepage = "https://github.com/never-over/bridge"
+Issues = "https://github.com/never-over/bridge/issues"
 
 
 [tool.pyright]
-include = ["bridge-sdk"]
+include = ["bridge"]
 exclude = ["**/__pycache__"]
-strict = ["bridge-sdk"]
+strict = ["bridge"]
 
 
 [build-system]
