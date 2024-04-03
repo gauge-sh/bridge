@@ -27,6 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install uv
+        uv venv
         uv pip install ruff pytest coverage pyright
     - name: Check ruff
       run: |
