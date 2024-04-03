@@ -1,6 +1,6 @@
 [project]
 name = "python-bridge"
-version = "0.0.1"
+version = "0.0.4"
 authors = [
   { name="Caelean Barnes", email="caeleanb@gmail.com" },
   { name="Evan Doyle", email="evanmdoyle@gmail.com" },
@@ -25,7 +25,7 @@ classifiers = [
 keywords = ['python', 'deployment', 'local', 'infrastructure', 'postgres', 'django', 'architecture']
 dependencies = [
     "docker==7.0.0",
-    "psycopg-binary==3.1.18",
+    "psycopg[binary]==3.1.18",
     "rich==13.7.1",
     "pydantic==2.6.4",
     "google-cloud-storage==2.16.0",

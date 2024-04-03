@@ -49,7 +49,7 @@ class DeployHandler(ABC):
         ):
             storage_client = storage.Client()
             bucket = storage_client.bucket(self.bucket_name)
-            destination_blob_name = f"deploys/{uuid.uuid4()}.zip"
+            destination_blob_name = f"deploys/{self.deploy_name}.zip"
             blob = bucket.blob(destination_blob_name)
             blob.upload_from_filename(str(zip_path))
 

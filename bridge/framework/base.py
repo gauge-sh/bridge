@@ -17,7 +17,7 @@ class FrameWorkHandler(ABC):
     def run(self) -> None:
         """Start services."""
         if os.environ.get("IS_BRIDGE_PLATFORM"):
-
+            self.remote()
         else:
             client = docker.from_env()
             if self.enable_postgres:

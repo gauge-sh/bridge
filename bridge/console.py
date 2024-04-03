@@ -27,3 +27,8 @@ def log_task(start_message, end_message):
 def log_error(message):
     console = Console()
     console.print(f"[bright_red]✗ Bridge Error[/bright_red]: {message}")
+
+
+def log_warning(message):
+    console = Console()
+    console.print(f"[yellow]Bridge Warning[/yellow]: {message}")

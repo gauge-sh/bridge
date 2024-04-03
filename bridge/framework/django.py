@@ -1,5 +1,6 @@
 import os.path
 
+from bridge.console import log_warning
 from bridge.framework.base import FrameWorkHandler
 from bridge.service.postgres import PostgresEnvironment
 
@@ -7,8 +8,8 @@ from bridge.service.postgres import PostgresEnvironment
 class DjangoHandler(FrameWorkHandler):
     def configure_postgres(self, environment: PostgresEnvironment) -> None:
         if "DATABASES" in self.framework_locals:
-            raise Exception(
-                "databases already configured; please remove to avoid collision or turn off postgres"
+            log_warning(
+                "databases already configured; overwriting key. Make sure no other instances of postgres are running."
             )
         self.framework_locals["DATABASES"] = {
             "default": {
