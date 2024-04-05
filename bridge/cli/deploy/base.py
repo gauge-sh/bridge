@@ -111,6 +111,6 @@ class DeployHandler(ABC):
                 self.project_root.name
             )  # TODO we should infer an asgi or wsgi entrypoint
             self.trigger(project_name=project_name, source_url=url)
-            deployment_url = self.retrieve()
+            self.retrieve()  # TODO retrieve url
         console.print(f"[bold white]{self.deploy_name[:8]} [bold green]deployed!")
-        console.print(f"[blue]https://{deployment_url if deployment_url else DEMO_URL}")
+        console.print(f"[blue]https://{DEMO_URL}")

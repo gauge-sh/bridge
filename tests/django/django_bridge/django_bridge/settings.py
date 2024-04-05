@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 
-from bridge.framework import django
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -122,5 +120,7 @@ STATIC_ROOT = "/app/static/" if DEBUG else None
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+
+from bridge.framework import django
 
 django.configure(locals())
