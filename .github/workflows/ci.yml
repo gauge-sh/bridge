@@ -48,4 +48,4 @@ jobs:
     - name: Check types with pyright
       run: |
         source .venv/bin/activate
-        pyright .
+        pyright bridge

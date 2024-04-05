@@ -1,6 +1,7 @@
 import argparse
 
-from bridge.cli.deploy.django import DjangoDeployer
+from .deploy.django import DjangoDeployer
+from .init import initialize_platform
 
 
 def main():
@@ -11,6 +12,16 @@ def main():
     # Parser for 'deploy' command
     deploy_parser = subparsers.add_parser("deploy", help="Deploy help")
     deploy_parser.add_subparsers(dest="deploy_command", help="Deploy sub-command help")
+
+    # Parser for 'init' command
+    init_parser = subparsers.add_parser(
+        "init", help="Initialize configuration for a given platform (Render, Heroku)"
+    )
+    init_parser.add_argument(
+        "init_platform",
+        help="Platform where you want to deploy this app",
+        choices=["render", "heroku"],
+    )
 
     # # Sub-parser for 'deploy' without sub-commands but with optional args
     # deploy_parser.add_argument(
@@ -67,6 +78,9 @@ def main():
             print("Listing deployments...")
         elif args.deploy_command == "rollback":
             print(f"Rolling back deployment: {args.deployment}")
+
+    elif args.command == "init":
+        initialize_platform(args.init_platform)
 
     elif args.command == "env":
         if args.env_command == "add":
