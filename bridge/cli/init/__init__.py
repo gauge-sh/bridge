@@ -1,8 +1,8 @@
-# This package is responsible for implementing
-# the 'init' command of the bridge CLI.
-# Each platform which is supported by bridge
-# will have its own implementation available
+from .render import initialize_render_platform
 
 
 def initialize_platform(platform: str):
-    print(f"Initializing configuration for {platform}...")
+    if platform == "render":
+        initialize_render_platform()
+    else:
+        raise ValueError(f"Unsupported platform: {platform}")

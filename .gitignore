@@ -161,3 +161,7 @@ cython_debug/
 .python-version
 .env.leave
 bridge/service/pgdata/
+
+
+# Bridge configuration
+.bridge/
