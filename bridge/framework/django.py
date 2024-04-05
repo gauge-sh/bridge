@@ -8,6 +8,7 @@ from bridge.service.postgres import PostgresEnvironment
 
 class DjangoHandler(FrameWorkHandler):
     def configure_postgres(self, environment: PostgresEnvironment) -> None:
+        # TODO: render doesn't provide individual env vars, need to parse from DATABASE_URL
         if "DATABASES" in self.framework_locals:
             log_warning(
                 "databases already configured; overwriting key. "
@@ -28,6 +29,10 @@ class DjangoHandler(FrameWorkHandler):
                 os.environ["BRIDGE_HOST"],
                 DEMO_URL,
             ]
+
+    def configure_staticfiles(self):
+        # TODO: set up STATIC_URL, STATIC_ROOT etc. for whitenoise setup on Render
+        ...
 
 
 def configure(settings_locals: dict, enable_postgres=True) -> None:

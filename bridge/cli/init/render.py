@@ -8,16 +8,15 @@ def initialize_render_platform():
         f.write(build_sh_template())
     with open(".bridge/start.sh", "w") as f:
         # TODO: detect this somehow, handle config
-        app_path = "app:app"
+        app_path = "django_bridge.asgi:application"
         print("> Writing start.sh")
         f.write(start_sh_template(app_path=app_path))
     with open(".bridge/render.yaml", "w") as f:
         print("> Writing render.yaml")
         f.write(
             render_yaml_template(
-                service_name="bridge-deployed-service",
-                database_name="bridge-deployed-db",
-                database_user="bridge-user",
+                service_name="django-bridge",
+                database_name="django-bridge-db",
             )
         )
     print("Configuration initialized for render")
