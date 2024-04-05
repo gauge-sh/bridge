@@ -15,3 +15,4 @@ Verify your installation is working correctly
 ```bash
 bridge -h
 ```
+You're ready to go!
