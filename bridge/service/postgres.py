@@ -1,5 +1,6 @@
-# Responsible for postgres
+import os
 from time import sleep
+from typing import Optional
 
 import docker
 import psycopg
@@ -11,11 +12,21 @@ from bridge.utils.filesystem import resolve_dot_bridge
 
 
 class PostgresEnvironment(BaseModel):
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "postgres"
-    POSTGRES_DB: str = "postgres"
-    POSTGRES_HOST: str = "localhost"
-    POSTGRES_PORT: str = "5432"
+    user: str = "postgres"
+    password: str = "postgres"
+    db: str = "postgres"
+    host: str = "localhost"
+    port: str = "5432"
+
+    @classmethod
+    def from_env(cls):
+        return cls(
+            POSTGRES_USER=os.environ.get("POSTGRES_USER", "postgres"),
+            POSTGRES_PASSWORD=os.environ.get("POSTGRES_PASSWORD", "postgres"),
+            POSTGRES_DB=os.environ.get("POSTGRES_DB", "postgres"),
+            POSTGRES_HOST=os.environ.get("POSTGRES_HOST", "localhost"),
+            POSTGRES_PORT=os.environ.get("POSTGRES_PORT", "5432"),
+        )
 
 
 class PostgresConfig(ContainerConfig):
@@ -34,16 +45,18 @@ class PostgresConfig(ContainerConfig):
 
 
 class PostgresService(DockerService):
-    def __init__(self, client: docker.DockerClient, config: PostgresConfig) -> None:
-        super().__init__(client, config)
+    def __init__(
+        self, client: docker.DockerClient, config: Optional[PostgresConfig] = None
+    ) -> None:
+        super().__init__(client, config or PostgresConfig())
 
     def ensure_ready(self):
         dsn = (
-            f"dbname={self.config.environment.POSTGRES_DB} "
-            f"user={self.config.environment.POSTGRES_USER} "
-            f"password={self.config.environment.POSTGRES_PASSWORD} "
-            f"host={self.config.environment.POSTGRES_HOST} "
-            f"port={self.config.environment.POSTGRES_PORT}"
+            f"dbname={self.config.environment.db} "
+            f"user={self.config.environment.user} "
+            f"password={self.config.environment.password} "
+            f"host={self.config.environment.host} "
+            f"port={self.config.environment.port}"
         )
         with log_task(
             start_message=f"Waiting for [white]{self.config.name}[/white] to be ready",

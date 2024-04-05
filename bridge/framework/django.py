@@ -1,35 +1,38 @@
 import os
 
-from bridge.cli.deploy.base import DEMO_URL
 from bridge.console import log_warning
 from bridge.framework.base import FrameWorkHandler
-from bridge.service.postgres import PostgresEnvironment
+from bridge.platform import Platform
+from bridge.platform.postgres import build_postgres_environment
 from bridge.service.redis import RedisConfig
 
 
 class DjangoHandler(FrameWorkHandler):
-    def configure_postgres(self, environment: PostgresEnvironment) -> None:
-        # TODO: render doesn't provide individual env vars, need to parse from DATABASE_URL
+    def is_remote(self) -> bool:
+        # Django's DEBUG mode should be disabled in production,
+        # so we use it to differentiate between running locally
+        # and running on an unknown remote platform.
+        is_debug_mode = bool(self.framework_locals.get("DEBUG"))
+        return super().is_remote() or not is_debug_mode
+
+    def configure_postgres(self, platform: Platform) -> None:
         if "DATABASES" in self.framework_locals:
             log_warning(
                 "databases already configured; overwriting key. "
                 "Make sure no other instances of postgres are running."
             )
+
+        environment = build_postgres_environment(platform=platform)
         self.framework_locals["DATABASES"] = {
             "default": {
                 "ENGINE": "django.db.backends.postgresql",
-                "NAME": environment.POSTGRES_DB,
-                "USER": environment.POSTGRES_USER,
-                "PASSWORD": environment.POSTGRES_PASSWORD,
-                "HOST": environment.POSTGRES_HOST,
-                "PORT": environment.POSTGRES_PORT,
+                "NAME": environment.db,
+                "USER": environment.user,
+                "PASSWORD": environment.password,
+                "HOST": environment.host,
+                "PORT": environment.port,
             }
         }
-        if os.environ.get("IS_BRIDGE_PLATFORM"):
-            self.framework_locals["ALLOWED_HOSTS"] += [
-                os.environ["BRIDGE_HOST"],
-                DEMO_URL,
-            ]
 
     def configure_redis(self, config: RedisConfig) -> None:
         self.framework_locals["CACHES"] = {

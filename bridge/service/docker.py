@@ -1,4 +1,5 @@
 import sys
+from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 
 import docker
@@ -6,6 +7,10 @@ from pydantic import BaseModel
 from rich.console import Console
 
 from bridge.console import log_error, log_task
+
+
+if TYPE_CHECKING:
+    import docker.errors
 
 
 def get_docker_client() -> docker.DockerClient:
@@ -22,7 +27,7 @@ class ContainerConfig(BaseModel):
     """
     Container configuration information.
 
-    All of the data needed to start a container.
+    All the data needed to start a container.
     Matches the method signature of `docker.container.create()`
     """
 
