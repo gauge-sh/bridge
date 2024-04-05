@@ -1,5 +1,4 @@
 # Responsible for postgres
-import os
 from time import sleep
 
 import docker
@@ -8,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from bridge.console import log_task
 from bridge.service.docker import ContainerConfig, DockerService
+from bridge.utils.filesystem import resolve_dot_bridge
 
 
 class PostgresEnvironment(BaseModel):
@@ -18,22 +18,16 @@ class PostgresEnvironment(BaseModel):
     POSTGRES_PORT: str = "5432"
 
 
-def resolve_pg_data_path():
-    # TODO create a folder per project or separate db for each
-    current_file_dir = os.path.dirname(os.path.abspath(__file__))
-    dir_path = os.path.join(current_file_dir, "pgdata")
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    return dir_path
-
-
 class PostgresConfig(ContainerConfig):
     image: str = "postgres:12"
     name: str = "bridge_postgres"
     ports: dict = {"5432/tcp": 5432}
     volumes: dict = Field(
         default_factory=lambda: {
-            resolve_pg_data_path(): {"bind": "/var/lib/postgresql/data", "mode": "rw"}
+            f"{resolve_dot_bridge()}/pgdata": {
+                "bind": "/var/lib/postgresql/data",
+                "mode": "rw",
+            }
         }
     )
     environment: PostgresEnvironment = PostgresEnvironment()
