@@ -1,7 +1,21 @@
-template = """#!/bin/bash
-echo "Hello, {name}!"
+template = """#!/usr/bin/env bash
+# Exit on error
+set -o errexit
+
+# Modify this line as needed for your package manager (pip, poetry, etc.)
+pip install -r requirements.txt
+
+# Install additional dependencies
+pip install gunicorn uvicorn psycopg-binary whitenoise[brotli]
+
+# Collect static asset files
+python manage.py collectstatic --no-input
+
+# Apply any outstanding database migrations
+python manage.py migrate
 """
 
 
-def build_sh_template(name: str) -> str:
-    return template.format(name=name)
+def build_sh_template() -> str:
+    # TODO: support other package managers, frameworks, etc.
+    return template.format()
