@@ -3,8 +3,6 @@ template = """services:
     plan: free
     runtime: python
     name: {service_name}
-    repo: {repo_url}
-    numInstances: 1
     buildCommand: ./build.sh
     startCommand: ./start.sh
     envVars:
@@ -26,13 +24,12 @@ databases:
 
 
 def render_yaml_template(
-    service_name: str, repo_url: str, database_name: str = "", database_user: str = ""
+    service_name: str, database_name: str = "", database_user: str = ""
 ) -> str:
     database_name = database_name or service_name
     database_user = database_user or service_name
     return template.format(
         service_name=service_name,
-        repo_url=repo_url,
         database_name=database_name,
         database_user=database_user,
     )
