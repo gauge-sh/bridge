@@ -18,8 +18,6 @@ class RedisService(DockerService):
         super().__init__(client, config)
 
     def ensure_ready(self):
-        redis_host = "localhost"  # Change as per your configuration
-        redis_port = self.config.ports["6379/tcp"]
         with log_task(
             start_message=f"Waiting for [white]{self.config.name}[/white] to be ready",
             end_message=f"[white]{self.config.name}[/white] is ready",
@@ -27,9 +25,10 @@ class RedisService(DockerService):
             while True:
                 try:
                     # Attempt to create a connection to Redis
-                    r = redis.Redis(host=redis_host, port=redis_port)
+                    r = redis.Redis(
+                        host="localhost", port=self.config.ports["6379/tcp"]
+                    )
                     if r.ping():
                         return  # Redis is ready and responding
                 except redis.ConnectionError:
-                    # If a connection error occurs, wait a bit and try again
                     sleep(0.1)
