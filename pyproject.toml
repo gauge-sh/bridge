@@ -26,6 +26,7 @@ keywords = ['python', 'deployment', 'local', 'infrastructure', 'postgres', 'djan
 dependencies = [
     "docker==7.0.0",
     "psycopg[binary]==3.1.18",
+    "redis==5.0.3",
     "rich==13.7.1",
     "pydantic==2.6.4",
     "google-cloud-storage==2.16.0",

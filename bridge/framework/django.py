@@ -4,6 +4,7 @@ from bridge.cli.deploy.base import DEMO_URL
 from bridge.console import log_warning
 from bridge.framework.base import FrameWorkHandler
 from bridge.service.postgres import PostgresEnvironment
+from bridge.service.redis import RedisConfig
 
 
 class DjangoHandler(FrameWorkHandler):
@@ -30,17 +31,28 @@ class DjangoHandler(FrameWorkHandler):
                 DEMO_URL,
             ]
 
+    def configure_redis(self, config: RedisConfig) -> None:
+        self.framework_locals["CACHES"] = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "LOCATION": "redis://127.0.0.1:6379",
+            }
+        }
+
     def configure_staticfiles(self):
         # TODO: set up STATIC_URL, STATIC_ROOT etc. for whitenoise setup on Render
         ...
 
 
-def configure(settings_locals: dict, enable_postgres=True) -> None:
+def configure(
+    settings_locals: dict, enable_postgres: bool = True, enable_redis: bool = True
+) -> None:
     project_name = os.path.basename(settings_locals["BASE_DIR"])
 
     handler = DjangoHandler(
         project_name=project_name,
         framework_locals=settings_locals,
         enable_postgres=enable_postgres,
+        enable_redis=enable_redis,
     )
     handler.run()
