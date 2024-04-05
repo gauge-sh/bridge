@@ -10,7 +10,7 @@ def resolve_dot_bridge() -> str:  # TODO return path objects instead of strings
     manage_py_path = Path(os.path.join(current_dir, "manage.py"))
     if not manage_py_path.exists():
         log_error(
-            f"No manage.py file found in {os.getcwd()} run the command from the same directory as manage.py"
+            f"No manage.py file found in {os.getcwd()}. Run the command from the same directory as manage.py"
         )
         sys.exit(1)
 
