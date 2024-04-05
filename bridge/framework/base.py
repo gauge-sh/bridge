@@ -3,7 +3,8 @@ from abc import ABC, abstractmethod
 
 import docker
 
-from bridge.service.postgres import PostgresConfig, PostgresEnvironment, PostgresService
+from bridge.service.postgres import PostgresService
+from bridge.platform import detect_platform, Platform
 
 
 class FrameWorkHandler(ABC):
@@ -14,41 +15,38 @@ class FrameWorkHandler(ABC):
         self.framework_locals = framework_locals
         self.enable_postgres = enable_postgres
 
+    def is_remote(self) -> bool:
+        """
+        Check if the application seems to be running on a remote platform.
+        Specific frameworks may be able to detect this more accurately and should override this method.
+        """
+        return bool(os.environ.get("BRIDGE_PLATFORM"))
+
     def run(self) -> None:
         """Start services."""
-        if os.environ.get("IS_BRIDGE_PLATFORM"):
-            self.remote()
+        if self.is_remote():
+            platform = detect_platform()
         else:
-            client = docker.from_env()
-            if self.enable_postgres:
-                self.start_postgres(client)
+            platform = Platform.LOCAL
+            self.start_local_services()
+        self.configure_services(platform)
 
-    def remote(self) -> None:
-        """Connect to remote services."""
+    def configure_services(self, platform: Platform) -> None:
         if self.enable_postgres:
-            environment = PostgresEnvironment(
-                POSTGRES_USER=os.environ["BRIDGE_POSTGRES_USER"],
-                POSTGRES_PASSWORD=os.environ["BRIDGE_POSTGRES_PASSWORD"],
-                POSTGRES_DB=os.environ["BRIDGE_POSTGRES_DB"],
-                POSTGRES_HOST=os.environ["BRIDGE_POSTGRES_HOST"],
-                POSTGRES_PORT=os.environ["BRIDGE_POSTGRES_PORT"],
-            )
-            self.configure_postgres(environment)
+            self.configure_postgres(platform=platform)
 
-    def local(self) -> None:
-        """Start services."""
+    def start_local_services(self):
+        """Start local services if necessary"""
         client = docker.from_env()
         if self.enable_postgres:
-            self.start_postgres(client)
+            self.start_local_postgres(client)
 
-    def start_postgres(self, client: docker.DockerClient) -> None:
-        config = PostgresConfig()
-        service = PostgresService(client=client, config=config)
+    def start_local_postgres(self, client: docker.DockerClient) -> None:
+        service = PostgresService(client=client)
         service.start()
-        self.configure_postgres(config.environment)
 
     @abstractmethod
-    def configure_postgres(self, environment: PostgresEnvironment) -> None:
+    def configure_postgres(self, platform: Platform) -> None:
         """Update framework_locals with the correct configuration for postgres"""
         pass
 

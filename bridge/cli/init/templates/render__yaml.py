@@ -14,6 +14,8 @@ template = """services:
         generateValue: true
       - key: WEB_CONCURRENCY
         value: 4
+      - key: BRIDGE_PLATFORM
+        value: render
 
 databases:
   - name: pg-db
