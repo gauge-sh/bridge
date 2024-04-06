@@ -5,7 +5,7 @@ from pathlib import Path
 from bridge.console import log_error
 
 
-def resolve_dot_bridge() -> str:  # TODO return path objects instead of strings
+def resolve_project_dir() -> Path:
     current_dir = os.getcwd()
     manage_py_path = Path(os.path.join(current_dir, "manage.py"))
     if not manage_py_path.exists():
@@ -13,6 +13,12 @@ def resolve_dot_bridge() -> str:  # TODO return path objects instead of strings
             f"No manage.py file found in {os.getcwd()}. Run the command from the same directory as manage.py"
         )
         sys.exit(1)
+
+    return Path(current_dir)
+
+
+def resolve_dot_bridge() -> Path:
+    project_dir = resolve_project_dir()
 
     def _create(path: str, is_file=False, file_content: str = "") -> None:
         if not os.path.exists(path):
@@ -23,7 +29,7 @@ def resolve_dot_bridge() -> str:  # TODO return path objects instead of strings
                 os.makedirs(path)
 
     # Create .bridge
-    bridge_path = os.path.join(current_dir, ".bridge")
+    bridge_path = os.path.join(project_dir, ".bridge")
     _create(bridge_path)
     # Create pgdata
     pgdata_path = os.path.join(bridge_path, "pgdata")
@@ -37,4 +43,4 @@ def resolve_dot_bridge() -> str:  # TODO return path objects instead of strings
     """
     gitignore_path = os.path.join(bridge_path, ".gitignore")
     _create(gitignore_path, is_file=True, file_content=gitignore_content)
-    return bridge_path
+    return Path(bridge_path)
