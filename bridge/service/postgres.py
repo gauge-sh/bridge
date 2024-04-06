@@ -52,11 +52,11 @@ class PostgresService(DockerService):
 
     def ensure_ready(self):
         dsn = (
-            f"dbname={self.config.environment.POSTGRES_DB} "
-            f"user={self.config.environment.POSTGRES_USER} "
-            f"password={self.config.environment.POSTGRES_PASSWORD} "
-            f"host={self.config.environment.POSTGRES_HOST} "
-            f"port={self.config.environment.POSTGRES_PORT}"
+            f"dbname={self.config.environment.db} "
+            f"user={self.config.environment.user} "
+            f"password={self.config.environment.password} "
+            f"host={self.config.environment.host} "
+            f"port={self.config.environment.port}"
         )
         with log_task(
             start_message=f"Waiting for [white]{self.config.name}[/white] to be ready",
