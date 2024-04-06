@@ -33,9 +33,24 @@ class DjangoHandler(FrameWorkHandler):
             }
         }
 
-    def configure_staticfiles(self):
-        # TODO: set up STATIC_URL, STATIC_ROOT etc. for whitenoise setup on Render
-        ...
+    def configure_staticfiles(self, platform: Platform):
+        if platform == Platform.RENDER:
+            if (
+                "STATIC_URL" in self.framework_locals
+                or "STATIC_ROOT" in self.framework_locals
+                or "STATICFILES_DIRS" in self.framework_locals
+                or "STATICFILES_STORAGE" in self.framework_locals
+            ):
+                log_warning(
+                    "staticfiles already configured; overwriting configuration."
+                )
+                self.framework_locals["STATIC_URL"] = "/static/"
+                self.framework_locals["STATIC_ROOT"] = os.path.join(
+                    self.framework_locals["BASE_DIR"], "staticfiles"
+                )
+                self.framework_locals["STATICFILES_STORAGE"] = (
+                    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+                )
 
 
 def configure(settings_locals: dict, enable_postgres=True) -> None:
