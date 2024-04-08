@@ -4,6 +4,7 @@ from bridge.console import log_warning
 from bridge.framework.base import FrameWorkHandler
 from bridge.platform import Platform
 from bridge.platform.postgres import build_postgres_environment
+from bridge.platform.redis import build_redis_environment
 
 
 class DjangoHandler(FrameWorkHandler):
@@ -35,6 +36,15 @@ class DjangoHandler(FrameWorkHandler):
                 "PASSWORD": environment.password,
                 "HOST": environment.host,
                 "PORT": environment.port,
+            }
+        }
+
+    def configure_redis(self, platform: Platform) -> None:
+        environment = build_redis_environment(platform)
+        self.framework_locals["CACHES"] = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "LOCATION": f"redis://{environment.host}:{environment.port}",
             }
         }
 
@@ -75,12 +85,15 @@ class DjangoHandler(FrameWorkHandler):
                     middleware.insert(0, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 
-def configure(settings_locals: dict, enable_postgres=True) -> None:
+def configure(
+    settings_locals: dict, enable_postgres: bool = True, enable_redis: bool = True
+) -> None:
     project_name = os.path.basename(settings_locals["BASE_DIR"])
 
     handler = DjangoHandler(
         project_name=project_name,
         framework_locals=settings_locals,
         enable_postgres=enable_postgres,
+        enable_redis=enable_redis,
     )
     handler.run()
