@@ -14,6 +14,11 @@ class DjangoHandler(FrameWorkHandler):
         is_debug_mode = bool(self.framework_locals.get("DEBUG"))
         return super().is_remote() or not is_debug_mode
 
+    def configure_services(self, platform: Platform) -> None:
+        super().configure_services(platform)
+        # Configuring staticfiles is Django-specific
+        self.configure_staticfiles(platform)
+
     def configure_postgres(self, platform: Platform) -> None:
         if "DATABASES" in self.framework_locals:
             log_warning(
