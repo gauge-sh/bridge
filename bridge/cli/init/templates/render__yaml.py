@@ -3,8 +3,8 @@ template = """services:
     plan: starter
     runtime: python
     name: {service_name}
-    buildCommand: ./build.sh
-    startCommand: ./start.sh
+    buildCommand: ./render-build.sh
+    startCommand: ./render-start.sh
     envVars:
       - key: DATABASE_URL
         fromDatabase:
