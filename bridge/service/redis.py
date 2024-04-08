@@ -2,15 +2,22 @@ from time import sleep
 
 import docker
 import redis
+from pydantic import BaseModel
 
 from bridge.console import log_task
 from bridge.service.docker import ContainerConfig, DockerService
+
+
+class RedisEnvironment(BaseModel):
+    host: str = "localhost"
+    port: int = 6379
 
 
 class RedisConfig(ContainerConfig):
     image: str = "redis:7.2.4"
     name: str = "bridge_redis"
     ports: dict = {"6379/tcp": 6379}
+    environment: RedisEnvironment = RedisEnvironment()
 
 
 class RedisService(DockerService):
@@ -26,7 +33,8 @@ class RedisService(DockerService):
                 try:
                     # Attempt to create a connection to Redis
                     r = redis.Redis(
-                        host="localhost", port=self.config.ports["6379/tcp"]
+                        host=self.config.environment.host,
+                        port=self.config.environment.host,
                     )
                     if r.ping():
                         return  # Redis is ready and responding

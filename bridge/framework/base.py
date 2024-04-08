@@ -40,6 +40,8 @@ class FrameWorkHandler(ABC):
     def configure_services(self, platform: Platform) -> None:
         if self.enable_postgres:
             self.configure_postgres(platform=platform)
+        if self.enable_redis:
+            self.configure_redis(platform=platform)
 
     def start_local_services(self):
         """Start local services if necessary"""
@@ -57,7 +59,6 @@ class FrameWorkHandler(ABC):
         config = RedisConfig()
         service = RedisService(client=client, config=config)
         service.start()
-        self.configure_redis(config)
 
     @abstractmethod
     def configure_postgres(self, platform: Platform) -> None:

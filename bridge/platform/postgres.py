@@ -1,6 +1,7 @@
+from bridge.service.postgres import PostgresEnvironment
+
 from .base import Platform
 from .render import build_render_postgres_environment
-from bridge.service.postgres import PostgresEnvironment
 
 
 def build_postgres_environment(platform: Platform) -> PostgresEnvironment:
