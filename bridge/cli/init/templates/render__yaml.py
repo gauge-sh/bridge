@@ -8,6 +8,8 @@ template = """services:
     buildCommand: ./render-build.sh
     startCommand: ./render-start.sh
     envVars:
+      - key: DEBUG
+        value: "False"
       - key: DATABASE_URL
         fromDatabase:
           name: {service_name}-db

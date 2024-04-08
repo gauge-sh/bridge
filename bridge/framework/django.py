@@ -49,13 +49,30 @@ class DjangoHandler(FrameWorkHandler):
                 log_warning(
                     "staticfiles already configured; overwriting configuration."
                 )
-                self.framework_locals["STATIC_URL"] = "/static/"
-                self.framework_locals["STATIC_ROOT"] = os.path.join(
-                    self.framework_locals["BASE_DIR"], "staticfiles"
+            self.framework_locals["STATIC_URL"] = "/static/"
+            self.framework_locals["STATIC_ROOT"] = os.path.join(
+                self.framework_locals["BASE_DIR"], "staticfiles"
+            )
+            self.framework_locals["STATICFILES_STORAGE"] = (
+                "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            )
+            middleware = self.framework_locals.get("MIDDLEWARE", [])
+            if "whitenoise.middleware.WhiteNoiseMiddleware" not in middleware:
+                security_middleware_idx = next(
+                    (
+                        i
+                        for i, middleware in enumerate(middleware)
+                        if middleware == "django.middleware.security.SecurityMiddleware"
+                    ),
+                    None,
                 )
-                self.framework_locals["STATICFILES_STORAGE"] = (
-                    "whitenoise.storage.CompressedManifestStaticFilesStorage"
-                )
+                if security_middleware_idx is not None:
+                    middleware.insert(
+                        security_middleware_idx + 1,
+                        "whitenoise.middleware.WhiteNoiseMiddleware",
+                    )
+                else:
+                    middleware.insert(0, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 
 def configure(settings_locals: dict, enable_postgres=True) -> None:
