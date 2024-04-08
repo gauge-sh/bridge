@@ -1,8 +1,15 @@
 import os
+import stat
 import sys
 from pathlib import Path
 
 from bridge.console import log_error
+
+
+def set_executable(file_path: Path) -> None:
+    file_path.chmod(
+        file_path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+    )
 
 
 def resolve_project_dir() -> Path:
