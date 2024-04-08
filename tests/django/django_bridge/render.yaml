@@ -1,0 +1,33 @@
+services:
+  - type: web
+    plan: starter
+    runtime: python
+    name: django_bridge
+    buildCommand: ./build.sh
+    startCommand: ./start.sh
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: django_bridge-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: django_bridge-redis
+          type: redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: BRIDGE_PLATFORM
+        value: render
+  - type: redis
+    name: django_bridge-redis
+    plan: free
+    ipAllowList: []
+
+databases:
+  - name: django_bridge-db
+    plan: free
+    databaseName: django_bridge-db
+    user: django_bridge

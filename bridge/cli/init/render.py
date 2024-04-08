@@ -1,9 +1,14 @@
 import os
+from pathlib import Path
 
 from pydantic import BaseModel
 
 from .templates import build_sh_template, render_yaml_template, start_sh_template
-from bridge.utils.filesystem import resolve_dot_bridge, resolve_project_dir
+from bridge.utils.filesystem import (
+    resolve_dot_bridge,
+    resolve_project_dir,
+    set_executable,
+)
 from bridge.console import console
 
 
@@ -27,8 +32,11 @@ class RenderPlatformInitConfig(BaseModel):
 
 
 def build_render_init_config() -> RenderPlatformInitConfig:
+    # NOTE: this method may request user input directly on the CLI
+    #   to determine configuration when it cannot be auto-detected
     project_name = resolve_project_dir().name
     app_path = detect_application_callable(project_name=project_name)
+    # May be able to remove this call since all scripts, YAML have moved to root
     bridge_path = resolve_dot_bridge()
     return RenderPlatformInitConfig(
         project_name=project_name, app_path=app_path, bridge_path=str(bridge_path)
@@ -36,14 +44,17 @@ def build_render_init_config() -> RenderPlatformInitConfig:
 
 
 def initialize_render_platform(config: RenderPlatformInitConfig):
-    with open(f"{config.bridge_path}/build.sh", "w") as f:
+    build_sh_path = Path("./render-build.sh")
+    with build_sh_path.open(mode="w") as f:
         f.write(build_sh_template())
+    set_executable(build_sh_path)
 
-    with open(f"{config.bridge_path}/start.sh", "w") as f:
-        # already assuming root directory is the app
+    start_sh_path = Path("./render-start.sh")
+    with start_sh_path.open(mode="w") as f:
         f.write(start_sh_template(app_path=config.app_path))
+    set_executable(start_sh_path)
 
-    with open(f"{config.bridge_path}/render.yaml", "w") as f:
+    with open("render.yaml", "w") as f:
         f.write(
             render_yaml_template(
                 service_name=config.project_name,

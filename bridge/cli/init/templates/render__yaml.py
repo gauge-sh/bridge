@@ -1,14 +1,19 @@
 template = """services:
   - type: web
-    plan: free
+    plan: starter
     runtime: python
     name: {service_name}
-    buildCommand: ./build.sh
-    startCommand: ./start.sh
+    buildCommand: ./render-build.sh
+    startCommand: ./render-start.sh
     envVars:
       - key: DATABASE_URL
         fromDatabase:
-          name: pg-db
+          name: {service_name}-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: {service_name}-redis
+          type: redis
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
@@ -16,9 +21,13 @@ template = """services:
         value: 4
       - key: BRIDGE_PLATFORM
         value: render
+  - type: redis
+    name: {service_name}-redis
+    plan: free
+    ipAllowList: []
 
 databases:
-  - name: pg-db
+  - name: {service_name}-db
     plan: free
     databaseName: {database_name}
     user: {database_user}
