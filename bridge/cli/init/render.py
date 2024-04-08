@@ -27,6 +27,8 @@ class RenderPlatformInitConfig(BaseModel):
 
 
 def build_render_init_config() -> RenderPlatformInitConfig:
+    # NOTE: this method may request user input directly on the CLI
+    #   to determine configuration when it cannot be auto-detected
     project_name = resolve_project_dir().name
     app_path = detect_application_callable(project_name=project_name)
     bridge_path = resolve_dot_bridge()
@@ -43,7 +45,7 @@ def initialize_render_platform(config: RenderPlatformInitConfig):
         # already assuming root directory is the app
         f.write(start_sh_template(app_path=config.app_path))
 
-    with open(f"{config.bridge_path}/render.yaml", "w") as f:
+    with open(f"render.yaml", "w") as f:
         f.write(
             render_yaml_template(
                 service_name=config.project_name,
