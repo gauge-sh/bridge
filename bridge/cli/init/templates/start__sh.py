@@ -1,5 +1,5 @@
 template = """#!/usr/bin/env bash
-gunicorn {app_path} -w "${{WEB_CONCURRENCY:-4}}"
+gunicorn {app_path} -w "${{WEB_CONCURRENCY:-4}}" -b 0.0.0.0:"$PORT"
 """
 
 
