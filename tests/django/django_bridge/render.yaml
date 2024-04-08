@@ -3,8 +3,8 @@ services:
     plan: starter
     runtime: python
     name: django_bridge
-    buildCommand: ./build.sh
-    startCommand: ./start.sh
+    buildCommand: ./render-build.sh
+    startCommand: ./render-start.sh
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -29,5 +29,5 @@ services:
 databases:
   - name: django_bridge-db
     plan: free
-    databaseName: django_bridge-db
+    databaseName: django_bridge_db
     user: django_bridge
