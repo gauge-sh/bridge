@@ -1,6 +1,6 @@
 [project]
 name = "python-bridge"
-version = "0.0.15"
+version = "0.0.16"
 authors = [
   { name="Caelean Barnes", email="caeleanb@gmail.com" },
   { name="Evan Doyle", email="evanmdoyle@gmail.com" },
