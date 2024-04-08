@@ -3,8 +3,8 @@ import os
 from bridge.console import log_warning
 from bridge.framework.base import FrameWorkHandler
 from bridge.platform import Platform
-from bridge.platform.postgres import build_postgres_environment, build_redis_environment
-from bridge.service.redis import RedisConfig
+from bridge.platform.postgres import build_postgres_environment
+from bridge.platform.redis import build_redis_environment
 
 
 class DjangoHandler(FrameWorkHandler):
@@ -34,8 +34,8 @@ class DjangoHandler(FrameWorkHandler):
             }
         }
 
-    def configure_redis(self, config: RedisConfig) -> None:
-        environment = build_redis_environment()
+    def configure_redis(self, platform: Platform) -> None:
+        environment = build_redis_environment(platform)
         self.framework_locals["CACHES"] = {
             "default": {
                 "BACKEND": "django.core.cache.backends.redis.RedisCache",
@@ -43,7 +43,7 @@ class DjangoHandler(FrameWorkHandler):
             }
         }
 
-    def configure_staticfiles(self,d platform: Platform):
+    def configure_staticfiles(self, platform: Platform):
         if platform == Platform.RENDER:
             if (
                 "STATIC_URL" in self.framework_locals

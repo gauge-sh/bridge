@@ -66,6 +66,6 @@ class FrameWorkHandler(ABC):
         pass
 
     @abstractmethod
-    def configure_redis(self, config: RedisConfig) -> None:
+    def configure_redis(self, platform: Platform) -> None:
         """Update framework_locals with the correct configuration for postgres"""
         pass

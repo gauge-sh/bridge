@@ -34,7 +34,7 @@ class RedisService(DockerService):
                     # Attempt to create a connection to Redis
                     r = redis.Redis(
                         host=self.config.environment.host,
-                        port=self.config.environment.host,
+                        port=self.config.environment.port,
                     )
                     if r.ping():
                         return  # Redis is ready and responding
