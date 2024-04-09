@@ -16,7 +16,7 @@ class PostgresEnvironment(BaseModel):
     password: str = "postgres"
     db: str = "postgres"
     host: str = "localhost"
-    port: str = "5432"
+    port: int | str = "5432"
 
     @classmethod
     def from_env(cls):
@@ -29,7 +29,7 @@ class PostgresEnvironment(BaseModel):
         )
 
 
-class PostgresConfig(ContainerConfig):
+class PostgresConfig(ContainerConfig[PostgresEnvironment]):
     image: str = "postgres:12"
     name: str = "bridge_postgres"
     ports: dict[str, int] = {"5432/tcp": 5432}

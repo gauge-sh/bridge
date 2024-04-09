@@ -1,10 +1,10 @@
 import sys
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 import docker
 from docker.models.containers import Container
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from rich.console import Console
 
 from bridge.console import log_error, log_task
@@ -23,10 +23,10 @@ def get_docker_client() -> docker.DockerClient:
     return client
 
 
-T_Environment = TypeVar("T_Environment", bound=BaseModel)
+T_Environment = TypeVar("T_Environment", bound=BaseModel | dict[str, Any])
 
 
-class ContainerConfig(BaseModel):
+class ContainerConfig(BaseModel, Generic[T_Environment]):
     """
     Container configuration information.
 
@@ -36,10 +36,10 @@ class ContainerConfig(BaseModel):
 
     image: str
     name: str
-    ports: dict[str, int] = {}
-    volumes: dict[str, str] = {}
+    ports: dict[str, int] = Field(default_factory=dict)
+    volumes: dict[str, str] = Field(default_factory=dict)
     restart_policy: dict[str, str] = {"Name": "always"}
-    environment: dict[str, Any] | T_Environment = {}
+    environment: T_Environment = Field(default_factory=dict)
 
 
 T_ContainerConfig = TypeVar("T_ContainerConfig", bound=ContainerConfig)
@@ -77,12 +77,13 @@ class DockerService(ABC, Generic[T_ContainerConfig]):
             start_message=f"Starting container [white]{self.config.name}[/white]",
             end_message=f"Container [white]{self.config.name}[/white] started",
         ):
-            containers: list[Container] = self.client.containers.list(
+            containers = self.client.containers.list(
                 filters={"name": self.config.name}, all=True
             )
             if containers:
                 # Container names are unique, there are 1 or 0 results
-                [container] = containers
+                [model] = containers
+                container = cast(Container, model)
                 if container.status in ["paused", "exited"]:
                     container.restart()
             else:

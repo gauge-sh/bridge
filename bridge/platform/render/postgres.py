@@ -13,10 +13,12 @@ def build_render_postgres_environment() -> PostgresEnvironment:
     config = dj_database_url.config(
         default=database_url,
     )
-    return PostgresEnvironment(
-        host=config["HOST"],
-        port=config["PORT"],
-        db=config["NAME"],
-        user=config["USER"],
-        password=config["PASSWORD"],
+    if not all([key in config for key in ["HOST", "PORT", "NAME", "USER", "PASSWORD"]]):
+        raise ValueError("Missing or incorrect DATABASE_URL configuration")
+    return PostgresEnvironment(  # key presence checked above
+        host=config["HOST"],  # type: ignore
+        port=config["PORT"],  # type: ignore
+        db=config["NAME"],  # type: ignore
+        user=config["USER"],  # type: ignore
+        password=config["PASSWORD"],  # type: ignore
     )

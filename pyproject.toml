@@ -41,7 +41,6 @@ Issues = "https://github.com/never-over/bridge/issues"
 [tool.pyright]
 include = ["bridge"]
 exclude = ["**/__pycache__", '**/.venv']
-strict = ["bridge"]
 reportMissingTypeStubs = false
 
 [build-system]

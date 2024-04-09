@@ -18,11 +18,11 @@ class RedisEnvironment(BaseModel):
         return f"redis://{self.host}:{self.port}"
 
 
-class RedisConfig(ContainerConfig):
+class RedisConfig(ContainerConfig[RedisEnvironment]):
     image: str = "redis:7.2.4"
     name: str = "bridge_redis"
     ports: dict[str, int] = {"6379/tcp": 6379}
-    environment: RedisEnvironment = RedisEnvironment()
+    environment = RedisEnvironment()
 
 
 class RedisService(DockerService[RedisConfig]):
