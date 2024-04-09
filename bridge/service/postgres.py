@@ -44,7 +44,7 @@ class PostgresConfig(ContainerConfig):
     environment: PostgresEnvironment = PostgresEnvironment()
 
 
-class PostgresService(DockerService):
+class PostgresService(DockerService[PostgresConfig]):
     def __init__(
         self, client: docker.DockerClient, config: Optional[PostgresConfig] = None
     ) -> None:

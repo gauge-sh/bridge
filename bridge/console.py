@@ -7,7 +7,7 @@ console = Console()
 
 
 @contextmanager
-def log_task(start_message: str, end_message: str) -> None:
+def log_task(start_message: str, end_message: str) -> None:  # type: ignore
     with console.status(
         f"      {start_message}", spinner="aesthetic", spinner_style="blue"
     ):

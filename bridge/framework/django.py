@@ -102,7 +102,7 @@ class DjangoHandler(FrameWorkHandler):
             self.framework_locals["STATICFILES_STORAGE"] = (
                 "whitenoise.storage.CompressedManifestStaticFilesStorage"
             )
-            middleware = self.framework_locals.get("MIDDLEWARE", [])
+            middleware: list[str] = self.framework_locals.get("MIDDLEWARE", [])
             if "whitenoise.middleware.WhiteNoiseMiddleware" not in middleware:
                 security_middleware_idx = next(
                     (
@@ -113,7 +113,7 @@ class DjangoHandler(FrameWorkHandler):
                     None,
                 )
                 if security_middleware_idx is not None:
-                    middleware.insert(
+                    middleware.insert(  # TODO this won't work with a tuple, we may want to modify
                         security_middleware_idx + 1,
                         "whitenoise.middleware.WhiteNoiseMiddleware",
                     )
@@ -130,7 +130,7 @@ class DjangoHandler(FrameWorkHandler):
         if "runserver" in sys.argv or "runserver_plus" in sys.argv:
             # This will make sure the app is always imported when
             # Django starts so that shared_task will use this app.
-            from bridge.service.celery import app  # noqa: F401
+            from bridge.service.celery import app  # noqa: F401 type: ignore
 
             with log_task("Starting local worker", "Local worker started"):
                 try:

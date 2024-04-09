@@ -24,7 +24,7 @@ class RedisConfig(ContainerConfig):
     environment: RedisEnvironment = RedisEnvironment()
 
 
-class RedisService(DockerService):
+class RedisService(DockerService[RedisConfig]):
     def __init__(self, client: docker.DockerClient, config: RedisConfig) -> None:
         super().__init__(client, config)
 

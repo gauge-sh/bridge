@@ -7,4 +7,4 @@ def build_redis_environment(platform: Platform) -> RedisEnvironment:
         return RedisEnvironment()
     else:
         # TODO remote configuration
-        ...
+        raise NotImplementedError(f"Unsupported platform: {platform}")

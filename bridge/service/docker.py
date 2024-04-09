@@ -1,8 +1,9 @@
 import sys
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 import docker
+from docker.models.containers import Container
 from pydantic import BaseModel
 from rich.console import Console
 
@@ -22,6 +23,9 @@ def get_docker_client() -> docker.DockerClient:
     return client
 
 
+T_Environment = TypeVar("T_Environment", bound=BaseModel)
+
+
 class ContainerConfig(BaseModel):
     """
     Container configuration information.
@@ -35,11 +39,14 @@ class ContainerConfig(BaseModel):
     ports: dict[str, int] = {}
     volumes: dict[str, str] = {}
     restart_policy: dict[str, str] = {"Name": "always"}
-    environment: dict[str, Any] | BaseModel = {}
+    environment: dict[str, Any] | T_Environment = {}
 
 
-class DockerService(ABC):
-    def __init__(self, client: docker.DockerClient, config: ContainerConfig) -> None:
+T_ContainerConfig = TypeVar("T_ContainerConfig", bound=ContainerConfig)
+
+
+class DockerService(ABC, Generic[T_ContainerConfig]):
+    def __init__(self, client: docker.DockerClient, config: T_ContainerConfig) -> None:
         self.client = client
         self.config = config
         # todo add self.container - should we start or fetch the container on startup?
@@ -70,7 +77,7 @@ class DockerService(ABC):
             start_message=f"Starting container [white]{self.config.name}[/white]",
             end_message=f"Container [white]{self.config.name}[/white] started",
         ):
-            containers = self.client.containers.list(
+            containers: list[Container] = self.client.containers.list(
                 filters={"name": self.config.name}, all=True
             )
             if containers:
@@ -80,7 +87,7 @@ class DockerService(ABC):
                     container.restart()
             else:
                 self.client.containers.run(
-                    **self.config.dict(),
+                    **self.config.model_dump(),
                     detach=True,
                 )
 
