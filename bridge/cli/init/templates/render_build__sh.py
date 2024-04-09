@@ -1,3 +1,5 @@
+from bridge.framework.base import Framework
+
 template = """#!/usr/bin/env bash
 # Exit on error
 set -o errexit
@@ -16,6 +18,9 @@ python manage.py migrate
 """
 
 
-def build_sh_template() -> str:
-    # TODO: support other package managers, frameworks, etc.
+def build_sh_template(framework: Framework) -> str:
+    if framework != Framework.DJANGO:
+        raise NotImplementedError(
+            f"Unsupported framework for Render platform: {framework}"
+        )
     return template.format()
