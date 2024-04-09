@@ -48,10 +48,10 @@ class ContainerConfig(BaseModel, Generic[T_Environment]):
     restart_policy: dict[str, str] = {"Name": "always"}
     environment: T_Environment = BaseEnvironment()
 
-    def to_container_run_kwargs(self) -> dict[Any, Any]:
+    def to_container_run_kwargs(self) -> dict[str, Any]:
+        # Right now the above spec matches `docker.container.run`, model_dump is sufficient
         dict_rep = self.model_dump()
-        if not isinstance(self.environment, dict):
-            dict_rep["environment"] = self.environment.to_container_run_kwargs()
+        dict_rep["environment"] = self.environment.to_container_run_kwargs()
         return dict_rep
 
 
@@ -101,7 +101,7 @@ class DockerService(ABC, Generic[T_ContainerConfig]):
                     container.restart()
             else:
                 self.client.containers.run(
-                    **self.config.model_dump(),
+                    **self.config.to_container_run_kwargs(),
                     detach=True,
                 )
 
