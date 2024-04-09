@@ -10,6 +10,8 @@ template = """services:
     envVars:
       - key: BRIDGE_PLATFORM
         value: render
+      - key: BRIDGE_PROJECT_NAME
+        value: {service_name}
       - key: SECRET_KEY
         generateValue: true
       - key: WEB_CONCURRENCY
@@ -37,6 +39,8 @@ template = """services:
     envVars:
       - key: BRIDGE_PLATFORM
         value: render
+      - key: BRIDGE_PROJECT_NAME
+        value: {service_name}
       - key: SECRET_KEY
         generateValue: true
       - key: TASK_CONCURRENCY
