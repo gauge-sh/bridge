@@ -17,7 +17,6 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
+from polls.views import test_view
 
-urlpatterns = [
-    path("evan/", admin.site.urls),
-]
+urlpatterns = [path("evan/", admin.site.urls), path("test_view/", test_view)]

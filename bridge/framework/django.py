@@ -1,6 +1,8 @@
 import os
+import subprocess
+import sys
 
-from bridge.console import log_warning
+from bridge.console import log_task, log_warning
 from bridge.framework.base import FrameWorkHandler
 from bridge.platform import Platform
 from bridge.platform.postgres import build_postgres_environment
@@ -47,7 +49,7 @@ class DjangoHandler(FrameWorkHandler):
         self.framework_locals["CACHES"] = {
             "default": {
                 "BACKEND": "django.core.cache.backends.redis.RedisCache",
-                "LOCATION": f"redis://{environment.host}:{environment.port}",
+                "LOCATION": environment.url,
             }
         }
 
@@ -117,16 +119,52 @@ class DjangoHandler(FrameWorkHandler):
                 else:
                     middleware.insert(0, "whitenoise.middleware.WhiteNoiseMiddleware")
 
+    def configure_worker(self, platform: Platform) -> None:
+        environment = build_redis_environment(platform)
+        self.framework_locals["CELERY_BROKER_URL"] = environment.url
+        self.framework_locals["CELERY_RESULT_BACKEND"] = environment.url
+
+    def start_local_worker(self) -> None:
+        # Confirm we are in a `runserver` command
+        if "runserver" in sys.argv or "runserver_plus" in sys.argv:
+            # This will make sure the app is always imported when
+            # Django starts so that shared_task will use this app.
+            from bridge.service.celery import app  # noqa: F401
+
+            with log_task("Starting local worker", "Local worker started"):
+                try:
+                    subprocess.run(
+                        ["celery", "-A", "bridge.service.celery", "status"],
+                        check=True,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.STDOUT,
+                    )
+
+                except subprocess.SubprocessError:
+                    subprocess.Popen(
+                        [
+                            "celery",
+                            "-A",
+                            "bridge.service.celery",
+                            "worker",
+                            "-l",
+                            "INFO",
+                        ],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.STDOUT,
+                    )
+
 
 def configure(
-    settings_locals: dict, enable_postgres: bool = True, enable_redis: bool = True
+    settings_locals: dict,
+    enable_postgres: bool = True,
+    enable_worker: bool = True,
 ) -> None:
     project_name = os.path.basename(settings_locals["BASE_DIR"])
-
     handler = DjangoHandler(
         project_name=project_name,
         framework_locals=settings_locals,
         enable_postgres=enable_postgres,
-        enable_redis=enable_redis,
+        enable_worker=enable_worker,
     )
     handler.run()

@@ -12,6 +12,10 @@ class RedisEnvironment(BaseModel):
     host: str = "localhost"
     port: int = 6379
 
+    @property
+    def url(self) -> str:
+        return f"redis://{self.host}:{self.port}"
+
 
 class RedisConfig(ContainerConfig):
     image: str = "redis:7.2.4"
