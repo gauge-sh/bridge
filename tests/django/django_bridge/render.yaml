@@ -6,6 +6,14 @@ services:
     buildCommand: ./render-build.sh
     startCommand: ./render-start.sh
     envVars:
+      - key: BRIDGE_PLATFORM
+        value: render
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: DEBUG
+        value: "False"
       - key: DATABASE_URL
         fromDatabase:
           name: django_bridge-db
@@ -15,16 +23,33 @@ services:
           name: django_bridge-redis
           type: redis
           property: connectionString
-      - key: SECRET_KEY
-        generateValue: true
-      - key: WEB_CONCURRENCY
-        value: 4
-      - key: BRIDGE_PLATFORM
-        value: render
   - type: redis
     name: django_bridge-redis
     plan: free
     ipAllowList: []
+  - type: worker
+    name: django_bridge-worker
+    runtime: python
+    buildCommand: ./render-build.sh
+    startCommand: ./render-start-worker.sh
+    envVars:
+      - key: BRIDGE_PLATFORM
+        value: render
+      - key: SECRET_KEY
+        generateValue: true
+      - key: TASK_CONCURRENCY
+        value: 4
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: django_bridge-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: django_bridge-redis
+          type: redis
+          property: connectionString
 
 databases:
   - name: django_bridge-db

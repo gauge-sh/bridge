@@ -3,7 +3,12 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from .templates import build_sh_template, render_yaml_template, start_sh_template
+from .templates import (
+    build_sh_template,
+    render_yaml_template,
+    start_sh_template,
+    start_worker_sh_template,
+)
 from bridge.utils.filesystem import (
     resolve_dot_bridge,
     resolve_project_dir,
@@ -53,6 +58,11 @@ def initialize_render_platform(config: RenderPlatformInitConfig):
     with start_sh_path.open(mode="w") as f:
         f.write(start_sh_template(app_path=config.app_path))
     set_executable(start_sh_path)
+
+    start_worker_sh_path = Path("./render-start-worker.sh")
+    with start_worker_sh_path.open(mode="w") as f:
+        f.write(start_worker_sh_template())
+    set_executable(start_worker_sh_path)
 
     with open("render.yaml", "w") as f:
         f.write(
