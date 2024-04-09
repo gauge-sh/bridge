@@ -3,13 +3,14 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from .templates import build_sh_template, render_yaml_template, start_sh_template
+from bridge.console import console
 from bridge.utils.filesystem import (
     resolve_dot_bridge,
     resolve_project_dir,
     set_executable,
 )
-from bridge.console import console
+
+from .templates import build_sh_template, render_yaml_template, start_sh_template
 
 
 def detect_application_callable(project_name: str = "") -> str:

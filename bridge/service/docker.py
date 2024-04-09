@@ -1,13 +1,12 @@
 import sys
-from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 import docker
 from pydantic import BaseModel
 from rich.console import Console
 
 from bridge.console import log_error, log_task
-
 
 if TYPE_CHECKING:
     import docker.errors

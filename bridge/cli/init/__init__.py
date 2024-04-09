@@ -1,5 +1,6 @@
 from bridge.console import log_task
-from .render import initialize_render_platform, build_render_init_config
+
+from .render import build_render_init_config, initialize_render_platform
 
 
 def initialize_platform(platform: str):
