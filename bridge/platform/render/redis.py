@@ -18,9 +18,9 @@ def build_render_redis_environment() -> RedisEnvironment:
     match = re.match(regex, conn_string)
     if match:
         components = match.groupdict()
-        redis_env.host = components.get("host", "localhost")
-        redis_env.port = int(components.get("port", 6379))
-        redis_env.db = int(components.get("db", 0))
+        redis_env.host = components["host"] or "localhost"
+        redis_env.port = int(components["port"] or 6379)
+        redis_env.db = int(components["db"] or 0)
     else:
         raise ValueError("Invalid Redis connection string format in REDIS_URL.")
 
