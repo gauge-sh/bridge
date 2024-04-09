@@ -39,7 +39,6 @@ class FrameWorkHandler(ABC):
         if self.enable_postgres:
             self.configure_postgres(platform=platform)
         if self.enable_worker:
-            self.configure_redis(platform=platform)
             self.configure_worker(platform=platform)
 
     def start_local_services(self):
@@ -68,11 +67,6 @@ class FrameWorkHandler(ABC):
     @abstractmethod
     def configure_postgres(self, platform: Platform) -> None:
         """Update framework_locals with the correct configuration for postgres"""
-        pass
-
-    @abstractmethod
-    def configure_redis(self, platform: Platform) -> None:
-        """Update framework_locals with the correct configuration for redis"""
         pass
 
     @abstractmethod

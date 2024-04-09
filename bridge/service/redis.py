@@ -13,6 +13,7 @@ class RedisEnvironment(BaseModel):
     port: int = 6379
     db: int = 0
 
+    @property
     def url(self) -> str:
         return f"redis://{self.host}:{self.port}"
 

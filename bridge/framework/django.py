@@ -36,15 +36,6 @@ class DjangoHandler(FrameWorkHandler):
             }
         }
 
-    def configure_redis(self, platform: Platform) -> None:
-        environment = build_redis_environment(platform)
-        self.framework_locals["CACHES"] = {
-            "default": {
-                "BACKEND": "django.core.cache.backends.redis.RedisCache",
-                "LOCATION": environment.url(),
-            }
-        }
-
     def configure_staticfiles(self, platform: Platform):
         if platform == Platform.RENDER:
             if (
@@ -66,8 +57,8 @@ class DjangoHandler(FrameWorkHandler):
 
     def configure_worker(self, platform: Platform) -> None:
         environment = build_redis_environment(platform)
-        self.framework_locals["CELERY_BROKER_URL"] = environment.url()
-        self.framework_locals["CELERY_RESULT_BACKEND"] = environment.url()
+        self.framework_locals["CELERY_BROKER_URL"] = environment.url
+        self.framework_locals["CELERY_RESULT_BACKEND"] = environment.url
 
     def start_local_worker(self) -> None:
         # Confirm we are in a `runserver` command
