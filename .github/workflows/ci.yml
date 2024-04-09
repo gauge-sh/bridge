@@ -19,9 +19,9 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-#    - uses: actions/checkout@v2 for ssh, enable these 3 lines
-#    - name: Setup upterm session
-#      uses: lhotari/action-upterm@v1
+    - uses: actions/checkout@v2 for ssh, enable these 3 lines
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
@@ -54,7 +54,6 @@ jobs:
       run: |
         source .venv/bin/activate
         cd tests/django/django_bridge
-        uv pip install -r requirements.txt
         coverage run --branch --source=../../../ ./manage.py check
         coverage report
         cd ../../../
