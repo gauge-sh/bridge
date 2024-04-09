@@ -24,7 +24,8 @@ class FrameWorkHandler(ABC):
     def is_remote(self) -> bool:
         """
         Check if the application seems to be running on a remote platform.
-        Specific frameworks may be able to detect this more accurately and should override this method.
+        Specific frameworks may be able to detect this more accurately and
+        should override this method.
         """
         return bool(os.environ.get("BRIDGE_PLATFORM"))
 

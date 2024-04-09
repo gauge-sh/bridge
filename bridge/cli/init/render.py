@@ -22,7 +22,8 @@ def detect_application_callable(project_name: str = "") -> str:
         return f"{project_name}.asgi:application"
     else:
         return console.input(
-            "Please provide the path to your WSGI or ASGI application callable (ex: myapp.wsgi:application):\n> "
+            "Please provide the path to your WSGI or ASGI application callable "
+            "(ex: myapp.wsgi:application):\n> "
         )
 
 

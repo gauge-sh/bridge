@@ -18,3 +18,11 @@ extend-select = [
 
 [format]
 docstring-code-format = true
+
+
+[lint.flake8-tidy-imports]
+# Disallow all relative imports.
+ban-relative-imports = "all"
+
+[lint.pycodestyle]
+max-line-length = 100
