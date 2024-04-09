@@ -1,1 +1,2 @@
 from .postgres import build_render_postgres_environment
+from .redis import build_render_redis_environment
