@@ -126,7 +126,7 @@ class DjangoHandler(FrameWorkHandler):
 
     def start_local_worker(self) -> None:
         # Confirm we are in a `runserver` command
-        if ["runserver", "runserver_plus"] in sys.argv:
+        if "runserver" in sys.argv or "runserver_plus" in sys.argv:
             # This will make sure the app is always imported when
             # Django starts so that shared_task will use this app.
             from bridge.service.celery import app  # noqa: F401
