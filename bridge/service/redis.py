@@ -2,13 +2,12 @@ from time import sleep
 
 import docker
 import redis
-from pydantic import BaseModel
 
 from bridge.console import log_task
-from bridge.service.docker import ContainerConfig, DockerService
+from bridge.service.docker import BaseEnvironment, ContainerConfig, DockerService
 
 
-class RedisEnvironment(BaseModel):
+class RedisEnvironment(BaseEnvironment):
     host: str = "localhost"
     port: int = 6379
     db: int = 0
@@ -22,7 +21,7 @@ class RedisConfig(ContainerConfig[RedisEnvironment]):
     image: str = "redis:7.2.4"
     name: str = "bridge_redis"
     ports: dict[str, int] = {"6379/tcp": 6379}
-    environment = RedisEnvironment()
+    environment: RedisEnvironment = RedisEnvironment()
 
 
 class RedisService(DockerService[RedisConfig]):

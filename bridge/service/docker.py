@@ -1,10 +1,10 @@
 import sys
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 import docker
 from docker.models.containers import Container
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Extra, Field
 from rich.console import Console
 
 from bridge.console import log_error, log_task
@@ -23,7 +23,15 @@ def get_docker_client() -> docker.DockerClient:
     return client
 
 
-T_Environment = TypeVar("T_Environment", bound=Union[BaseModel, dict[str, Any]])
+class BaseEnvironment(BaseModel):
+    def to_container_run_kwargs(self) -> dict[str, Any]:
+        return self.model_dump()
+
+    class Config:
+        extra = Extra.allow
+
+
+T_Environment = TypeVar("T_Environment", bound=BaseEnvironment)
 
 
 class ContainerConfig(BaseModel, Generic[T_Environment]):
@@ -31,7 +39,6 @@ class ContainerConfig(BaseModel, Generic[T_Environment]):
     Container configuration information.
 
     All the data needed to start a container.
-    Matches the method signature of `docker.container.create()`
     """
 
     image: str
@@ -39,7 +46,13 @@ class ContainerConfig(BaseModel, Generic[T_Environment]):
     ports: dict[str, int] = Field(default_factory=dict)
     volumes: dict[str, str] = Field(default_factory=dict)
     restart_policy: dict[str, str] = {"Name": "always"}
-    environment: T_Environment = Field(default_factory=dict)
+    environment: T_Environment = BaseEnvironment()
+
+    def to_container_run_kwargs(self) -> dict[Any, Any]:
+        dict_rep = self.model_dump()
+        if not isinstance(self.environment, dict):
+            dict_rep["environment"] = self.environment.to_container_run_kwargs()
+        return dict_rep
 
 
 T_ContainerConfig = TypeVar("T_ContainerConfig", bound=ContainerConfig)

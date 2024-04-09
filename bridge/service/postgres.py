@@ -4,14 +4,14 @@ from typing import Optional, Union
 
 import docker
 import psycopg
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from bridge.console import log_task
-from bridge.service.docker import ContainerConfig, DockerService
+from bridge.service.docker import BaseEnvironment, ContainerConfig, DockerService
 from bridge.utils.filesystem import resolve_dot_bridge
 
 
-class PostgresEnvironment(BaseModel):
+class PostgresEnvironment(BaseEnvironment):
     user: str = "postgres"
     password: str = "postgres"
     db: str = "postgres"
@@ -27,6 +27,15 @@ class PostgresEnvironment(BaseModel):
             host=os.environ.get("POSTGRES_HOST", "localhost"),
             port=os.environ.get("POSTGRES_PORT", "5432"),
         )
+
+    def to_container_run_kwargs(self) -> dict[str, Union[int, str]]:
+        return {
+            "POSTGRES_USER": self.user,
+            "POSTGRES_PASSWORD": self.password,
+            "POSTGRES_DB": self.db,
+            "POSTGRES_HOST": self.host,
+            "POSTGRES_PORT": self.port,
+        }
 
 
 class PostgresConfig(ContainerConfig[PostgresEnvironment]):
