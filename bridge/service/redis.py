@@ -11,6 +11,7 @@ from bridge.service.docker import ContainerConfig, DockerService
 class RedisEnvironment(BaseModel):
     host: str = "localhost"
     port: int = 6379
+    db: int = 0
 
     @property
     def url(self) -> str:

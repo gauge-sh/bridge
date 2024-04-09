@@ -44,15 +44,6 @@ class DjangoHandler(FrameWorkHandler):
             }
         }
 
-    def configure_redis(self, platform: Platform) -> None:
-        environment = build_redis_environment(platform)
-        self.framework_locals["CACHES"] = {
-            "default": {
-                "BACKEND": "django.core.cache.backends.redis.RedisCache",
-                "LOCATION": environment.url,
-            }
-        }
-
     def configure_allowed_hosts(self, platform: Platform) -> None:
         if platform == Platform.RENDER:
             if (
