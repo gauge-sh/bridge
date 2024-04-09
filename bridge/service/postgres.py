@@ -1,6 +1,6 @@
 import os
 from time import sleep
-from typing import Optional
+from typing import Optional, Union
 
 import docker
 import psycopg
@@ -16,7 +16,7 @@ class PostgresEnvironment(BaseModel):
     password: str = "postgres"
     db: str = "postgres"
     host: str = "localhost"
-    port: int | str = "5432"
+    port: Union[int, str] = "5432"
 
     @classmethod
     def from_env(cls):

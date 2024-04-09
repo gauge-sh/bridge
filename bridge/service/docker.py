@@ -1,6 +1,6 @@
 import sys
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union, cast
 
 import docker
 from docker.models.containers import Container
@@ -23,7 +23,7 @@ def get_docker_client() -> docker.DockerClient:
     return client
 
 
-T_Environment = TypeVar("T_Environment", bound=BaseModel | dict[str, Any])
+T_Environment = TypeVar("T_Environment", bound=Union[BaseModel, dict[str, Any]])
 
 
 class ContainerConfig(BaseModel, Generic[T_Environment]):
