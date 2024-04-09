@@ -17,8 +17,10 @@ class DjangoHandler(FrameWorkHandler):
 
     def configure_services(self, platform: Platform) -> None:
         super().configure_services(platform)
-        # Configuring staticfiles is Django-specific
+        # Additional Django-specific configuration
         self.configure_staticfiles(platform)
+        self.configure_allowed_hosts(platform)
+        self.configure_debug(platform)
 
     def configure_postgres(self, platform: Platform) -> None:
         if "DATABASES" in self.framework_locals:
@@ -47,6 +49,14 @@ class DjangoHandler(FrameWorkHandler):
                 "LOCATION": f"redis://{environment.host}:{environment.port}",
             }
         }
+
+    def configure_allowed_hosts(self, platform: Platform) -> None:
+        if platform == Platform.RENDER:
+            self.framework_locals["ALLOWED_HOSTS"] = ["*.onrender.com", "localhost"]
+
+    def configure_debug(self, platform: Platform) -> None:
+        if platform != Platform.LOCAL:
+            self.framework_locals["DEBUG"] = False
 
     def configure_staticfiles(self, platform: Platform):
         if platform == Platform.RENDER:
