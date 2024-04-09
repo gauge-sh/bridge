@@ -21,6 +21,7 @@ class DjangoHandler(FrameWorkHandler):
         self.configure_staticfiles(platform)
         self.configure_allowed_hosts(platform)
         self.configure_debug(platform)
+        self.configure_secret_key(platform)
 
     def configure_postgres(self, platform: Platform) -> None:
         if "DATABASES" in self.framework_locals:
@@ -52,11 +53,33 @@ class DjangoHandler(FrameWorkHandler):
 
     def configure_allowed_hosts(self, platform: Platform) -> None:
         if platform == Platform.RENDER:
+            if (
+                "ALLOWED_HOSTS" in self.framework_locals
+                and self.framework_locals["ALLOWED_HOSTS"]
+            ):
+                log_warning(
+                    "ALLOWED_HOSTS already configured and non-empty; overwriting configuration."
+                )
             self.framework_locals["ALLOWED_HOSTS"] = ["*.onrender.com", "localhost"]
 
     def configure_debug(self, platform: Platform) -> None:
         if platform != Platform.LOCAL:
+            if "DEBUG" in self.framework_locals and self.framework_locals["DEBUG"]:
+                log_warning(
+                    "DEBUG is truthy in remote environment; overwriting configuration to False."
+                )
             self.framework_locals["DEBUG"] = False
+
+    def configure_secret_key(self, platform: Platform) -> None:
+        if platform != Platform.LOCAL:
+            if (
+                "SECRET_KEY" in self.framework_locals
+                and self.framework_locals["SECRET_KEY"]
+            ):
+                log_warning("SECRET_KEY already configured; overwriting configuration.")
+            self.framework_locals["SECRET_KEY"] = os.environ.get(
+                "SECRET_KEY", self.framework_locals.get("SECRET_KEY", "")
+            )
 
     def configure_staticfiles(self, platform: Platform):
         if platform == Platform.RENDER:
