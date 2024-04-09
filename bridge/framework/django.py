@@ -45,15 +45,6 @@ class DjangoHandler(FrameWorkHandler):
             }
         }
 
-    def configure_redis(self, platform: Platform) -> None:
-        environment = build_redis_environment(platform)
-        self.framework_locals["CACHES"] = {
-            "default": {
-                "BACKEND": "django.core.cache.backends.redis.RedisCache",
-                "LOCATION": environment.url,
-            }
-        }
-
     def configure_allowed_hosts(self, platform: Platform) -> None:
         if platform == Platform.RENDER:
             if (
@@ -63,7 +54,7 @@ class DjangoHandler(FrameWorkHandler):
                 log_warning(
                     "ALLOWED_HOSTS already configured and non-empty; overwriting configuration."
                 )
-            self.framework_locals["ALLOWED_HOSTS"] = ["*.onrender.com", "localhost"]
+            self.framework_locals["ALLOWED_HOSTS"] = [".onrender.com", "localhost"]
 
     def configure_debug(self, platform: Platform) -> None:
         if platform != Platform.LOCAL:
