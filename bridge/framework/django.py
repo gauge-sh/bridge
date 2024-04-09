@@ -17,6 +17,14 @@ class DjangoHandler(FrameWorkHandler):
         is_debug_mode = bool(self.framework_locals.get("DEBUG"))
         return super().is_remote() or not is_debug_mode
 
+    def configure_services(self, platform: Platform) -> None:
+        super().configure_services(platform)
+        # Additional Django-specific configuration
+        self.configure_staticfiles(platform)
+        self.configure_allowed_hosts(platform)
+        self.configure_debug(platform)
+        self.configure_secret_key(platform)
+
     def configure_postgres(self, platform: Platform) -> None:
         if "DATABASES" in self.framework_locals:
             log_warning(
@@ -36,6 +44,36 @@ class DjangoHandler(FrameWorkHandler):
             }
         }
 
+    def configure_allowed_hosts(self, platform: Platform) -> None:
+        if platform == Platform.RENDER:
+            if (
+                "ALLOWED_HOSTS" in self.framework_locals
+                and self.framework_locals["ALLOWED_HOSTS"]
+            ):
+                log_warning(
+                    "ALLOWED_HOSTS already configured and non-empty; overwriting configuration."
+                )
+            self.framework_locals["ALLOWED_HOSTS"] = ["*.onrender.com", "localhost"]
+
+    def configure_debug(self, platform: Platform) -> None:
+        if platform != Platform.LOCAL:
+            if "DEBUG" in self.framework_locals and self.framework_locals["DEBUG"]:
+                log_warning(
+                    "DEBUG is truthy in remote environment; overwriting configuration to False."
+                )
+            self.framework_locals["DEBUG"] = False
+
+    def configure_secret_key(self, platform: Platform) -> None:
+        if platform != Platform.LOCAL:
+            if (
+                "SECRET_KEY" in self.framework_locals
+                and self.framework_locals["SECRET_KEY"]
+            ):
+                log_warning("SECRET_KEY already configured; overwriting configuration.")
+            self.framework_locals["SECRET_KEY"] = os.environ.get(
+                "SECRET_KEY", self.framework_locals.get("SECRET_KEY", "")
+            )
+
     def configure_staticfiles(self, platform: Platform):
         if platform == Platform.RENDER:
             if (
@@ -47,13 +85,30 @@ class DjangoHandler(FrameWorkHandler):
                 log_warning(
                     "staticfiles already configured; overwriting configuration."
                 )
-                self.framework_locals["STATIC_URL"] = "/static/"
-                self.framework_locals["STATIC_ROOT"] = os.path.join(
-                    self.framework_locals["BASE_DIR"], "staticfiles"
+            self.framework_locals["STATIC_URL"] = "/static/"
+            self.framework_locals["STATIC_ROOT"] = os.path.join(
+                self.framework_locals["BASE_DIR"], "staticfiles"
+            )
+            self.framework_locals["STATICFILES_STORAGE"] = (
+                "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            )
+            middleware = self.framework_locals.get("MIDDLEWARE", [])
+            if "whitenoise.middleware.WhiteNoiseMiddleware" not in middleware:
+                security_middleware_idx = next(
+                    (
+                        i
+                        for i, middleware in enumerate(middleware)
+                        if middleware == "django.middleware.security.SecurityMiddleware"
+                    ),
+                    None,
                 )
-                self.framework_locals["STATICFILES_STORAGE"] = (
-                    "whitenoise.storage.CompressedManifestStaticFilesStorage"
-                )
+                if security_middleware_idx is not None:
+                    middleware.insert(
+                        security_middleware_idx + 1,
+                        "whitenoise.middleware.WhiteNoiseMiddleware",
+                    )
+                else:
+                    middleware.insert(0, "whitenoise.middleware.WhiteNoiseMiddleware")
 
     def configure_worker(self, platform: Platform) -> None:
         environment = build_redis_environment(platform)
@@ -62,7 +117,7 @@ class DjangoHandler(FrameWorkHandler):
 
     def start_local_worker(self) -> None:
         # Confirm we are in a `runserver` command
-        if sys.argv[1] == "runserver":
+        if "runserver" in sys.argv or "runserver_plus" in sys.argv:
             # This will make sure the app is always imported when
             # Django starts so that shared_task will use this app.
             from bridge.service.celery import app  # noqa: F401

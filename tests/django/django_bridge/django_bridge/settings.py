@@ -112,7 +112,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
-STATIC_ROOT = "/app/static/" if DEBUG else None
 
 
 # Default primary key field type

@@ -1,3 +1,5 @@
+from bridge.utils.sanitize import sanitize_postgresql_identifier
+
 template = """services:
   - type: web
     plan: starter
@@ -6,6 +8,8 @@ template = """services:
     buildCommand: ./render-build.sh
     startCommand: ./render-start.sh
     envVars:
+      - key: DEBUG
+        value: "False"
       - key: DATABASE_URL
         fromDatabase:
           name: {service_name}-db
@@ -41,6 +45,6 @@ def render_yaml_template(
     database_user = database_user or service_name
     return template.format(
         service_name=service_name,
-        database_name=database_name,
-        database_user=database_user,
+        database_name=sanitize_postgresql_identifier(database_name),
+        database_user=sanitize_postgresql_identifier(database_user),
     )
