@@ -53,7 +53,7 @@ class DjangoHandler(FrameWorkHandler):
                 log_warning(
                     "ALLOWED_HOSTS already configured and non-empty; overwriting configuration."
                 )
-            self.framework_locals["ALLOWED_HOSTS"] = ["*.onrender.com", "localhost"]
+            self.framework_locals["ALLOWED_HOSTS"] = [".onrender.com", "localhost"]
 
     def configure_debug(self, platform: Platform) -> None:
         if platform != Platform.LOCAL:
