@@ -58,6 +58,6 @@ def initialize_render_platform(config: RenderPlatformInitConfig):
         f.write(
             render_yaml_template(
                 service_name=config.project_name,
-                database_name=f"{config.project_name}-db",
+                database_name=f"{config.project_name}_db",
             )
         )
