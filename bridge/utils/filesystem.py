@@ -28,7 +28,7 @@ def resolve_project_dir() -> Path:
 def resolve_dot_bridge() -> Path:
     project_dir = resolve_project_dir()
 
-    def _create(path: str, is_file=False, file_content: str = "") -> None:
+    def _create(path: str, is_file: bool = False, file_content: str = "") -> None:
         if not os.path.exists(path):
             if is_file:
                 with open(path, "w") as f:

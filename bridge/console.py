@@ -7,7 +7,7 @@ console = Console()
 
 
 @contextmanager
-def log_task(start_message, end_message):
+def log_task(start_message: str, end_message: str) -> None:
     with console.status(
         f"      {start_message}", spinner="aesthetic", spinner_style="blue"
     ):
@@ -25,9 +25,9 @@ def log_task(start_message, end_message):
             )
 
 
-def log_error(message):
+def log_error(message: str) -> None:
     console.print(f"[bright_red]✗ Bridge Error[/bright_red]: {message}")
 
 
-def log_warning(message):
+def log_warning(message: str) -> None:
     console.print(f"[yellow]Bridge Warning[/yellow]: {message}")

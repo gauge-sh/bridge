@@ -21,11 +21,11 @@ class PostgresEnvironment(BaseModel):
     @classmethod
     def from_env(cls):
         return cls(
-            POSTGRES_USER=os.environ.get("POSTGRES_USER", "postgres"),
-            POSTGRES_PASSWORD=os.environ.get("POSTGRES_PASSWORD", "postgres"),
-            POSTGRES_DB=os.environ.get("POSTGRES_DB", "postgres"),
-            POSTGRES_HOST=os.environ.get("POSTGRES_HOST", "localhost"),
-            POSTGRES_PORT=os.environ.get("POSTGRES_PORT", "5432"),
+            user=os.environ.get("POSTGRES_USER", "postgres"),
+            password=os.environ.get("POSTGRES_PASSWORD", "postgres"),
+            db=os.environ.get("POSTGRES_DB", "postgres"),
+            host=os.environ.get("POSTGRES_HOST", "localhost"),
+            port=os.environ.get("POSTGRES_PORT", "5432"),
         )
 
 
