@@ -19,7 +19,7 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v2 for ssh, enable these 3 lines
+    - uses: actions/checkout@v4  # for ssh, enable these 3 lines
     - name: Setup upterm session
       uses: lhotari/action-upterm@v1
     - uses: actions/checkout@v4
