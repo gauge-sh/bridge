@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+from typing import Any
 
 from bridge.console import log_task, log_warning
 from bridge.framework.base import FrameWorkHandler
@@ -156,7 +157,7 @@ class DjangoHandler(FrameWorkHandler):
 
 
 def configure(
-    settings_locals: dict,
+    settings_locals: dict[Any, Any],
     enable_postgres: bool = True,
     enable_worker: bool = True,
 ) -> None:

@@ -1,6 +1,6 @@
 import sys
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import docker
 from pydantic import BaseModel
@@ -32,10 +32,10 @@ class ContainerConfig(BaseModel):
 
     image: str
     name: str
-    ports: dict = {}
-    volumes: dict = {}
-    restart_policy: dict = {"Name": "always"}
-    environment: dict | BaseModel = {}
+    ports: dict[str, int] = {}
+    volumes: dict[str, str] = {}
+    restart_policy: dict[str, str] = {"Name": "always"}
+    environment: dict[str, Any] | BaseModel = {}
 
 
 class DockerService(ABC):

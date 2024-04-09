@@ -6,4 +6,4 @@ from django.contrib.auth.models import User
 
 @shared_task
 def create_random_user():
-    User.objects.create_user(username=uuid.uuid4())
+    User.objects.create_user(username=str(uuid.uuid4()))

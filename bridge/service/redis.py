@@ -20,7 +20,7 @@ class RedisEnvironment(BaseModel):
 class RedisConfig(ContainerConfig):
     image: str = "redis:7.2.4"
     name: str = "bridge_redis"
-    ports: dict = {"6379/tcp": 6379}
+    ports: dict[str, int] = {"6379/tcp": 6379}
     environment: RedisEnvironment = RedisEnvironment()
 
 

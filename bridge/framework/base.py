@@ -1,5 +1,6 @@
 import os
 from abc import ABC, abstractmethod
+from typing import Any
 
 import docker
 
@@ -12,7 +13,7 @@ class FrameWorkHandler(ABC):
     def __init__(
         self,
         project_name: str,
-        framework_locals: dict,
+        framework_locals: dict[Any, Any],
         enable_postgres: bool,
         enable_worker: bool,
     ):

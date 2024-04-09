@@ -32,8 +32,8 @@ class PostgresEnvironment(BaseModel):
 class PostgresConfig(ContainerConfig):
     image: str = "postgres:12"
     name: str = "bridge_postgres"
-    ports: dict = {"5432/tcp": 5432}
-    volumes: dict = Field(
+    ports: dict[str, int] = {"5432/tcp": 5432}
+    volumes: dict[str, str] = Field(
         default_factory=lambda: {
             f"{resolve_dot_bridge()}/pgdata": {
                 "bind": "/var/lib/postgresql/data",
