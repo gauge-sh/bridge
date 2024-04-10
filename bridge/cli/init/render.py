@@ -1,5 +1,6 @@
 import os
 from abc import ABC, abstractmethod
+from importlib.util import find_spec
 from pathlib import Path
 from typing import Optional
 
@@ -33,11 +34,18 @@ def detect_django_settings_module(project_name: str = "") -> str:
     if os.path.exists(settings_path):
         return f"{project_name}.settings"
     else:
-        # TODO: validate input
-        return console.input(
-            "Please provide the path to your"
-            " Django settings module (ex: myapp.settings):\n> "
-        )
+        while True:
+            module_path = console.input(
+                "Please provide the path to your"
+                " Django settings module (ex: myapp.settings):\n> "
+            )
+            if find_spec(module_path) is not None:
+                # The module exists and can be imported
+                return module_path
+            else:
+                console.print(
+                    f"The module {module_path} could not be found. Please try again."
+                )
 
 
 def detect_application_callable(project_name: str = "") -> str:
@@ -47,12 +55,29 @@ def detect_application_callable(project_name: str = "") -> str:
         return f"{project_name}.wsgi:application"
     elif os.path.exists(asgi_path):
         return f"{project_name}.asgi:application"
-    else:
-        # TODO: validate input
-        return console.input(
+
+    # If we haven't returned yet, it means we could not auto-detect the callable
+    while True:
+        user_input = console.input(
             "Please provide the path to your WSGI or ASGI application callable "
             "(ex: myapp.wsgi:application):\n> "
         )
+        module_path, _, callable_name = user_input.partition(":")
+        if not callable_name:
+            callable_name = "application"  # Default to 'application' if not provided
+        try:
+            if find_spec(module_path) is not None:
+                return f"{module_path}:{callable_name}"
+            else:
+                console.print(
+                    f"The module '{module_path}' could not be found or imported."
+                    " Please try again."
+                )
+        except ImportError:
+            console.print(
+                f"The module '{module_path}' could not be found or imported."
+                " Please try again."
+            )
 
 
 class DjangoConfig(BaseModel):
