@@ -9,7 +9,7 @@ class Platform(Enum):
     UNKNOWN_REMOTE = "unknown_remote"
     HEROKU = "heroku"
     RENDER = "render"
-    VERCEL = "vercel"
+    RAILWAY = "railway"
 
 
 def detect_platform():

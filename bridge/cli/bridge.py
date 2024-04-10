@@ -6,6 +6,8 @@ from bridge.cli.init import initialize_platform
 def main():
     # Create the top-level parser for the 'bridge' command
     parser = argparse.ArgumentParser(prog="bridge")
+    # TODO: tie this version output to the version in pyproject.toml
+    parser.add_argument("--version", action="version", version="%(prog)s 0.0.22")
     subparsers = parser.add_subparsers(dest="command", help="sub-command help")
 
     # Parser for 'init' command
@@ -15,7 +17,7 @@ def main():
     init_parser.add_argument(
         "init_platform",
         help="Platform where you want to deploy this app",
-        choices=["render", "heroku"],
+        choices=["render", "railway", "heroku"],
     )
     init_parser.add_argument(
         "--wsgi-path",
