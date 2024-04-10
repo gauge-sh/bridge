@@ -31,3 +31,7 @@ def log_error(message: str) -> None:
 
 def log_warning(message: str) -> None:
     console.print(f"[yellow]Bridge Warning[/yellow]: {message}")
+
+
+def log_info(message: str) -> None:
+    console.print(f"[cyan]Bridge Info[/cyan]: {message}")
