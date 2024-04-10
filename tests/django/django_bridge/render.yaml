@@ -35,6 +35,8 @@ services:
     envVars:
       - key: BRIDGE_PLATFORM
         value: render
+      - key: DJANGO_SETTINGS_MODULE
+        value: django_bridge.settings
       - key: SECRET_KEY
         generateValue: true
       - key: TASK_CONCURRENCY
