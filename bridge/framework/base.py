@@ -1,15 +1,24 @@
 import os
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Any
 
 import docker
 
 from bridge.platform import Platform, detect_platform
 from bridge.service.postgres import PostgresService
-from bridge.service.redis import RedisConfig, RedisService
+from bridge.service.redis import RedisService
+
+
+class Framework(Enum):
+    DJANGO = "django"
+    FLASK = "flask"
+    FASTAPI = "fastapi"
 
 
 class FrameWorkHandler(ABC):
+    FRAMEWORK: Framework = NotImplemented
+
     def __init__(
         self,
         project_name: str,
@@ -57,8 +66,7 @@ class FrameWorkHandler(ABC):
         service.start()
 
     def start_local_redis(self, client: docker.DockerClient) -> None:
-        config = RedisConfig()
-        service = RedisService(client=client, config=config)
+        service = RedisService(client=client)
         service.start()
 
     @abstractmethod

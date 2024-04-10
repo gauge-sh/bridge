@@ -2,7 +2,7 @@ import os
 
 import dj_database_url
 
-from bridge.service.postgres import PostgresEnvironment
+from bridge.platform.postgres import PostgresEnvironment
 
 
 def build_render_postgres_environment() -> PostgresEnvironment:
@@ -10,15 +10,23 @@ def build_render_postgres_environment() -> PostgresEnvironment:
         database_url = os.environ["DATABASE_URL"]
     except KeyError as e:
         raise ValueError("DATABASE_URL is required for Render Postgres") from e
-    config = dj_database_url.config(
+    config: dj_database_url.DBConfig = dj_database_url.config(
         default=database_url,
     )
-    if not all([key in config for key in ["HOST", "PORT", "NAME", "USER", "PASSWORD"]]):
-        raise ValueError("Missing or incorrect DATABASE_URL configuration")
+    # Assertion here satisfies pyright
+    assert (
+        "HOST" in config
+        and "PORT" in config
+        and "NAME" in config
+        and "USER" in config
+        and "PASSWORD" in config
+    ), "DATABASE_URL configuration is missing required keys"
+
+    port = 5432 if not config["PORT"] else int(config["PORT"])
     return PostgresEnvironment(  # key presence checked above
-        host=config["HOST"],  # type: ignore
-        port=config["PORT"],  # type: ignore
-        db=config["NAME"],  # type: ignore
-        user=config["USER"],  # type: ignore
-        password=config["PASSWORD"],  # type: ignore
+        host=config["HOST"],
+        port=port,
+        db=config["NAME"],
+        user=config["USER"],
+        password=config["PASSWORD"],
     )
