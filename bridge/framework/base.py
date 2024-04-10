@@ -1,5 +1,6 @@
 import os
 from abc import ABC, abstractmethod
+from typing import Any
 
 import docker
 
@@ -12,7 +13,7 @@ class FrameWorkHandler(ABC):
     def __init__(
         self,
         project_name: str,
-        framework_locals: dict,
+        framework_locals: dict[Any, Any],
         enable_postgres: bool,
         enable_worker: bool,
     ):
@@ -24,7 +25,8 @@ class FrameWorkHandler(ABC):
     def is_remote(self) -> bool:
         """
         Check if the application seems to be running on a remote platform.
-        Specific frameworks may be able to detect this more accurately and should override this method.
+        Specific frameworks may be able to detect this more accurately and
+        should override this method.
         """
         return bool(os.environ.get("BRIDGE_PLATFORM"))
 

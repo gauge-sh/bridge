@@ -3,18 +3,18 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from .templates import (
+from bridge.cli.init.templates import (
     build_sh_template,
     render_yaml_template,
     start_sh_template,
     start_worker_sh_template,
 )
+from bridge.console import console
 from bridge.utils.filesystem import (
     resolve_dot_bridge,
     resolve_project_dir,
     set_executable,
 )
-from bridge.console import console
 
 
 def detect_application_callable(project_name: str = "") -> str:
@@ -26,7 +26,8 @@ def detect_application_callable(project_name: str = "") -> str:
         return f"{project_name}.asgi:application"
     else:
         return console.input(
-            "Please provide the path to your WSGI or ASGI application callable (ex: myapp.wsgi:application):\n> "
+            "Please provide the path to your WSGI or ASGI application callable "
+            "(ex: myapp.wsgi:application):\n> "
         )
 
 
