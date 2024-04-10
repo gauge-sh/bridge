@@ -116,6 +116,7 @@ class DjangoHandler(FrameWorkHandler):
                     )
                 else:
                     middleware.insert(0, "whitenoise.middleware.WhiteNoiseMiddleware")
+            self.framework_locals["MIDDLEWARE"] = middleware
 
     def configure_worker(self, platform: Platform) -> None:
         # This will make sure the app is always imported when
