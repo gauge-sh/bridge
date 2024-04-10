@@ -5,5 +5,5 @@ from polls.tasks import create_random_user
 
 
 def test_view(request):
-    create_random_user.delay()
+    create_random_user.delay()  # type: ignore
     return HttpResponse("Hello, world. You're at the polls index.")

@@ -17,7 +17,8 @@ def resolve_project_dir() -> Path:
     manage_py_path = Path(os.path.join(current_dir, "manage.py"))
     if not manage_py_path.exists():
         log_error(
-            f"No manage.py file found in {os.getcwd()}. Run the command from the same directory as manage.py"
+            f"No manage.py file found in {os.getcwd()}. "
+            f"Run the command from the same directory as manage.py"
         )
         sys.exit(1)
 
@@ -27,7 +28,7 @@ def resolve_project_dir() -> Path:
 def resolve_dot_bridge() -> Path:
     project_dir = resolve_project_dir()
 
-    def _create(path: str, is_file=False, file_content: str = "") -> None:
+    def _create(path: str, is_file: bool = False, file_content: str = "") -> None:
         if not os.path.exists(path):
             if is_file:
                 with open(path, "w") as f:

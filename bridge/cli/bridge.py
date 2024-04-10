@@ -1,6 +1,6 @@
 import argparse
 
-from .init import initialize_platform
+from bridge.cli.init import initialize_platform
 
 
 def main():

@@ -9,4 +9,4 @@ def build_redis_environment(platform: Platform) -> RedisEnvironment:
     elif platform == Platform.RENDER:
         return build_render_redis_environment()
     else:
-        raise ValueError(f"Unsupported platform for Redis: {platform}")
+        raise NotImplementedError(f"Unsupported platform for Redis: {platform}")

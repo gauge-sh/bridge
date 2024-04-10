@@ -1,39 +1,48 @@
 import os
 from time import sleep
-from typing import Optional
+from typing import Optional, Union
 
 import docker
 import psycopg
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from bridge.console import log_task
-from bridge.service.docker import ContainerConfig, DockerService
+from bridge.service.docker import BaseEnvironment, ContainerConfig, DockerService
 from bridge.utils.filesystem import resolve_dot_bridge
 
 
-class PostgresEnvironment(BaseModel):
+class PostgresEnvironment(BaseEnvironment):
     user: str = "postgres"
     password: str = "postgres"
     db: str = "postgres"
     host: str = "localhost"
-    port: str = "5432"
+    port: Union[int, str] = "5432"
 
     @classmethod
     def from_env(cls):
         return cls(
-            POSTGRES_USER=os.environ.get("POSTGRES_USER", "postgres"),
-            POSTGRES_PASSWORD=os.environ.get("POSTGRES_PASSWORD", "postgres"),
-            POSTGRES_DB=os.environ.get("POSTGRES_DB", "postgres"),
-            POSTGRES_HOST=os.environ.get("POSTGRES_HOST", "localhost"),
-            POSTGRES_PORT=os.environ.get("POSTGRES_PORT", "5432"),
+            user=os.environ.get("POSTGRES_USER", "postgres"),
+            password=os.environ.get("POSTGRES_PASSWORD", "postgres"),
+            db=os.environ.get("POSTGRES_DB", "postgres"),
+            host=os.environ.get("POSTGRES_HOST", "localhost"),
+            port=os.environ.get("POSTGRES_PORT", "5432"),
         )
 
+    def to_container_run_kwargs(self) -> dict[str, Union[int, str]]:
+        return {
+            "POSTGRES_USER": self.user,
+            "POSTGRES_PASSWORD": self.password,
+            "POSTGRES_DB": self.db,
+            "POSTGRES_HOST": self.host,
+            "POSTGRES_PORT": self.port,
+        }
 
-class PostgresConfig(ContainerConfig):
+
+class PostgresConfig(ContainerConfig[PostgresEnvironment]):
     image: str = "postgres:12"
     name: str = "bridge_postgres"
-    ports: dict = {"5432/tcp": 5432}
-    volumes: dict = Field(
+    ports: dict[str, int] = {"5432/tcp": 5432}
+    volumes: dict[str, str] = Field(
         default_factory=lambda: {
             f"{resolve_dot_bridge()}/pgdata": {
                 "bind": "/var/lib/postgresql/data",
@@ -44,7 +53,7 @@ class PostgresConfig(ContainerConfig):
     environment: PostgresEnvironment = PostgresEnvironment()
 
 
-class PostgresService(DockerService):
+class PostgresService(DockerService[PostgresConfig]):
     def __init__(
         self, client: docker.DockerClient, config: Optional[PostgresConfig] = None
     ) -> None:

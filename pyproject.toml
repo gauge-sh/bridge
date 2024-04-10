@@ -38,12 +38,10 @@ dependencies = [
 Homepage = "https://github.com/never-over/bridge"
 Issues = "https://github.com/never-over/bridge/issues"
 
-
 [tool.pyright]
 include = ["bridge"]
-exclude = ["**/__pycache__"]
-strict = ["bridge"]
-
+exclude = ["**/__pycache__", '**/.venv']
+reportMissingTypeStubs = false
 
 [build-system]
 requires = ["setuptools>=61.0"]

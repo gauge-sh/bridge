@@ -1,5 +1,6 @@
 import os
 import re
+
 from bridge.service.redis import RedisEnvironment
 
 
@@ -14,8 +15,12 @@ def build_render_redis_environment() -> RedisEnvironment:
     # Hostname that does not contain ':' or '/'
     # Optional port number preceded by ':'
     # Optional database number preceded by '/'
-    regex = r"^redis:\/\/(?:(?P<password>[^@]+)@)?(?P<host>[^:\/]+)(?::(?P<port>\d+))?(?:\/(?P<db>\d+))?$"
+    regex = (
+        r"^redis:\/\/(?:(?P<password>[^@]+)@)?(?P<host>[^:\/]+)"
+        r"(?::(?P<port>\d+))?(?:\/(?P<db>\d+))?$"
+    )
     match = re.match(regex, conn_string)
+
     if match:
         components = match.groupdict()
         redis_env.host = components["host"] or "localhost"

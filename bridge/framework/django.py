@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+from typing import Any
 
 from bridge.console import log_task, log_warning
 from bridge.framework.base import Framework, FrameWorkHandler
@@ -94,7 +95,7 @@ class DjangoHandler(FrameWorkHandler):
             self.framework_locals["STATICFILES_STORAGE"] = (
                 "whitenoise.storage.CompressedManifestStaticFilesStorage"
             )
-            middleware = self.framework_locals.get("MIDDLEWARE", [])
+            middleware: list[str] = self.framework_locals.get("MIDDLEWARE", [])
             if "whitenoise.middleware.WhiteNoiseMiddleware" not in middleware:
                 security_middleware_idx = next(
                     (
@@ -105,7 +106,7 @@ class DjangoHandler(FrameWorkHandler):
                     None,
                 )
                 if security_middleware_idx is not None:
-                    middleware.insert(
+                    middleware.insert(  # TODO this won't work with a tuple, we may want to modify
                         security_middleware_idx + 1,
                         "whitenoise.middleware.WhiteNoiseMiddleware",
                     )
@@ -150,7 +151,7 @@ class DjangoHandler(FrameWorkHandler):
 
 
 def configure(
-    settings_locals: dict,
+    settings_locals: dict[Any, Any],
     enable_postgres: bool = True,
     enable_worker: bool = True,
 ) -> None:
