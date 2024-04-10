@@ -7,7 +7,7 @@ import docker
 
 from bridge.platform import Platform, detect_platform
 from bridge.service.postgres import PostgresService
-from bridge.service.redis import RedisConfig, RedisService
+from bridge.service.redis import RedisService
 
 
 class Framework(Enum):
@@ -66,8 +66,7 @@ class FrameWorkHandler(ABC):
         service.start()
 
     def start_local_redis(self, client: docker.DockerClient) -> None:
-        config = RedisConfig()
-        service = RedisService(client=client, config=config)
+        service = RedisService(client=client)
         service.start()
 
     @abstractmethod
