@@ -137,9 +137,8 @@ class DjangoHandler(FrameWorkHandler):
             with log_task("Starting local worker", "Local worker started"):
                 from bridge.service.django_celery import app
 
-                celery_status = app.control.inspect().ping()
-                print("status", celery_status)
-                if celery_status is None:
+                # Check if celery is already running
+                if not app.control.inspect().ping():
                     subprocess.Popen(
                         [
                             "celery",
