@@ -106,4 +106,5 @@ class DockerService(ABC, Generic[T_ContainerConfig]):
                 )
 
     @abstractmethod
-    def ensure_ready(self) -> None: ...
+    def ensure_ready(self) -> None:
+        pass
