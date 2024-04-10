@@ -4,13 +4,15 @@ import sys
 from typing import Any
 
 from bridge.console import log_task, log_warning
-from bridge.framework.base import FrameWorkHandler
+from bridge.framework.base import Framework, FrameWorkHandler
 from bridge.platform import Platform
 from bridge.platform.postgres import build_postgres_environment
 from bridge.platform.redis import build_redis_environment
 
 
 class DjangoHandler(FrameWorkHandler):
+    FRAMEWORK = Framework.DJANGO
+
     def is_remote(self) -> bool:
         # Django's DEBUG mode should be disabled in production,
         # so we use it to differentiate between running locally
@@ -112,21 +114,22 @@ class DjangoHandler(FrameWorkHandler):
                     middleware.insert(0, "whitenoise.middleware.WhiteNoiseMiddleware")
 
     def configure_worker(self, platform: Platform) -> None:
+        # This will make sure the app is always imported when
+        # Django starts so that shared_task will use this app.
+        from bridge.service.django_celery import app  # noqa: F401 type: ignore
+
         environment = build_redis_environment(platform)
         self.framework_locals["CELERY_BROKER_URL"] = environment.url
         self.framework_locals["CELERY_RESULT_BACKEND"] = environment.url
 
     def start_local_worker(self) -> None:
-        # Confirm we are in a `runserver` command
-        if "runserver" in sys.argv or "runserver_plus" in sys.argv:
-            # This will make sure the app is always imported when
-            # Django starts so that shared_task will use this app.
-            from bridge.service.celery import app  # noqa: F401 type: ignore
-
+        # Confirm we are in a command which expects Celery to be available
+        expected_command_args = {"runserver", "runserver_plus", "shell", "shell_plus"}
+        if set(sys.argv) & expected_command_args:
             with log_task("Starting local worker", "Local worker started"):
                 try:
                     subprocess.run(
-                        ["celery", "-A", "bridge.service.celery", "status"],
+                        ["celery", "-A", "bridge.service.django_celery", "status"],
                         check=True,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
@@ -137,7 +140,7 @@ class DjangoHandler(FrameWorkHandler):
                         [
                             "celery",
                             "-A",
-                            "bridge.service.celery",
+                            "bridge.service.django_celery",
                             "worker",
                             "-l",
                             "INFO",

@@ -1,3 +1,4 @@
+from bridge.framework.base import Framework
 from bridge.utils.sanitize import sanitize_postgresql_identifier
 
 template = """services:
@@ -10,8 +11,6 @@ template = """services:
     envVars:
       - key: BRIDGE_PLATFORM
         value: render
-      - key: BRIDGE_PROJECT_NAME
-        value: {service_name}
       - key: SECRET_KEY
         generateValue: true
       - key: WEB_CONCURRENCY
@@ -39,8 +38,8 @@ template = """services:
     envVars:
       - key: BRIDGE_PLATFORM
         value: render
-      - key: BRIDGE_PROJECT_NAME
-        value: {service_name}
+      - key: DJANGO_SETTINGS_MODULE
+        value: {django_settings_module}
       - key: SECRET_KEY
         generateValue: true
       - key: TASK_CONCURRENCY
@@ -66,12 +65,29 @@ databases:
 
 
 def render_yaml_template(
-    service_name: str, database_name: str = "", database_user: str = ""
+    framework: Framework,
+    service_name: str,
+    database_name: str = "",
+    database_user: str = "",
+    django_settings_module: str = "",
 ) -> str:
+    if framework != Framework.DJANGO:
+        # TODO: use a real templating engine to allow flexibility across frameworks
+        raise NotImplementedError(
+            f"Unsupported framework for Render platform: {framework}"
+        )
+
+    if not django_settings_module:
+        raise ValueError(
+            "Failed to template render.yaml:"
+            " DJANGO_SETTINGS_MODULE is required for Django projects"
+        )
+
     database_name = database_name or service_name
     database_user = database_user or service_name
     return template.format(
         service_name=service_name,
         database_name=sanitize_postgresql_identifier(database_name),
         database_user=sanitize_postgresql_identifier(database_user),
+        django_settings_module=django_settings_module,
     )

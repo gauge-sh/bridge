@@ -1,5 +1,6 @@
 import os
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Any
 
 import docker
@@ -9,7 +10,15 @@ from bridge.service.postgres import PostgresService
 from bridge.service.redis import RedisService
 
 
+class Framework(Enum):
+    DJANGO = "django"
+    FLASK = "flask"
+    FASTAPI = "fastapi"
+
+
 class FrameWorkHandler(ABC):
+    FRAMEWORK: Framework = NotImplemented
+
     def __init__(
         self,
         project_name: str,
