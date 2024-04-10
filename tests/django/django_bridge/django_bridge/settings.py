@@ -120,6 +120,6 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-from bridge.framework import django  # noqa: E402
+from bridge.django import configure  # noqa: E402
 
-django.configure(locals())
+configure(locals())
