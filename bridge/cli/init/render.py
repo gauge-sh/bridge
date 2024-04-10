@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from bridge.cli.init.templates import (
     build_sh_template,
+    build_worker_sh_template,
     render_yaml_template,
     start_sh_template,
     start_worker_sh_template,
@@ -83,17 +84,24 @@ def build_render_init_config() -> RenderPlatformInitConfig:
 
 
 def initialize_render_platform(config: RenderPlatformInitConfig):
-    build_sh_path = Path("./render-build.sh")
+    script_dir = f"bridge-{config.framework.value}-render"
+    os.makedirs(script_dir, exist_ok=True)
+    build_sh_path = Path(f"./{script_dir}/build.sh")
     with build_sh_path.open(mode="w") as f:
         f.write(build_sh_template(framework=config.framework))
     set_executable(build_sh_path)
 
-    start_sh_path = Path("./render-start.sh")
+    build_worker_sh_path = Path(f"./{script_dir}/build-worker.sh")
+    with build_worker_sh_path.open(mode="w") as f:
+        f.write(build_worker_sh_template(framework=config.framework))
+    set_executable(build_worker_sh_path)
+
+    start_sh_path = Path(f"./{script_dir}/start.sh")
     with start_sh_path.open(mode="w") as f:
         f.write(start_sh_template(app_path=config.app_path))
     set_executable(start_sh_path)
 
-    start_worker_sh_path = Path("./render-start-worker.sh")
+    start_worker_sh_path = Path(f"./{script_dir}/start-worker.sh")
     with start_worker_sh_path.open(mode="w") as f:
         f.write(start_worker_sh_template(framework=config.framework))
     set_executable(start_worker_sh_path)
@@ -102,6 +110,7 @@ def initialize_render_platform(config: RenderPlatformInitConfig):
         f.write(
             render_yaml_template(
                 framework=config.framework,
+                script_dir=script_dir,
                 service_name=config.project_name,
                 database_name=f"{config.project_name}_db",
                 django_settings_module=config.django_config.settings_module

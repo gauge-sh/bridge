@@ -3,8 +3,8 @@ services:
     plan: starter
     runtime: python
     name: django_bridge
-    buildCommand: ./render-build.sh
-    startCommand: ./render-start.sh
+    buildCommand: ./bridge-django-render/build.sh
+    startCommand: ./bridge-django-render/start.sh
     envVars:
       - key: BRIDGE_PLATFORM
         value: render
@@ -30,8 +30,8 @@ services:
   - type: worker
     name: django_bridge-worker
     runtime: python
-    buildCommand: ./render-build.sh
-    startCommand: ./render-start-worker.sh
+    buildCommand: ./bridge-django-render/build-worker.sh
+    startCommand: ./bridge-django-render/start-worker.sh
     envVars:
       - key: BRIDGE_PLATFORM
         value: render

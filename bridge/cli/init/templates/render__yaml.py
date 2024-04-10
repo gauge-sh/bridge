@@ -6,8 +6,8 @@ template = """services:
     plan: starter
     runtime: python
     name: {service_name}
-    buildCommand: ./render-build.sh
-    startCommand: ./render-start.sh
+    buildCommand: ./{script_dir}/build.sh
+    startCommand: ./{script_dir}/start.sh
     envVars:
       - key: BRIDGE_PLATFORM
         value: render
@@ -33,8 +33,8 @@ template = """services:
   - type: worker
     name: {service_name}-worker
     runtime: python
-    buildCommand: ./render-build.sh
-    startCommand: ./render-start-worker.sh
+    buildCommand: ./{script_dir}/build-worker.sh
+    startCommand: ./{script_dir}/start-worker.sh
     envVars:
       - key: BRIDGE_PLATFORM
         value: render
@@ -66,6 +66,7 @@ databases:
 
 def render_yaml_template(
     framework: Framework,
+    script_dir: str,
     service_name: str,
     database_name: str = "",
     database_user: str = "",
@@ -86,6 +87,7 @@ def render_yaml_template(
     database_name = database_name or service_name
     database_user = database_user or service_name
     return template.format(
+        script_dir=script_dir,
         service_name=service_name,
         database_name=sanitize_postgresql_identifier(database_name),
         database_user=sanitize_postgresql_identifier(database_user),
