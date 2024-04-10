@@ -1,5 +1,5 @@
 from bridge.cli.init.render import build_render_init_config, initialize_render_platform
-from bridge.console import log_task
+from bridge.console import log_info, log_task
 
 
 def initialize_platform(platform: str):
@@ -11,5 +11,10 @@ def initialize_platform(platform: str):
             "Configuration initialized for render",
         ):
             initialize_render_platform(config=config)
+    elif platform in ["railway", "heroku"]:
+        log_info(f"Platform '{platform}' is not supported yet")
     else:
-        raise ValueError(f"Unsupported platform: {platform}")
+        raise ValueError(
+            "Unknown platform provided."
+            " Known platforms: ['render', 'railway', 'heroku']"
+        )

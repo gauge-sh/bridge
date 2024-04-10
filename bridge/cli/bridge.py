@@ -17,7 +17,7 @@ def main():
     init_parser.add_argument(
         "init_platform",
         help="Platform where you want to deploy this app",
-        choices=["render", "heroku"],
+        choices=["render", "railway", "heroku"],
     )
     init_parser.add_argument(
         "--wsgi-path",
