@@ -88,7 +88,7 @@ class DockerService(ABC, Generic[T_ContainerConfig]):
                     container.restart()
             else:
                 self.client.containers.run(
-                    **self.config.dict(),
+                    **self.config.model_dump(),
                     detach=True,
                 )
 
