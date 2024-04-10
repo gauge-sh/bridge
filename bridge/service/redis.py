@@ -1,32 +1,26 @@
 from time import sleep
+from typing import Optional
 
 import docker
 import redis
 
 from bridge.console import log_task
-from bridge.service.docker import BaseEnvironment, ContainerConfig, DockerService
+from bridge.platform.redis import RedisEnvironment
+from bridge.service.docker import ContainerConfig, DockerService
 
 
-class RedisEnvironment(BaseEnvironment):
-    host: str = "localhost"
-    port: int = 6379
-    db: int = 0
-
-    @property
-    def url(self) -> str:
-        return f"redis://{self.host}:{self.port}"
-
-
-class RedisConfig(ContainerConfig[RedisEnvironment]):
+class RedisConfig(ContainerConfig):
     image: str = "redis:7.2.4"
     name: str = "bridge_redis"
     ports: dict[str, int] = {"6379/tcp": 6379}
-    environment: RedisEnvironment = RedisEnvironment()
 
 
 class RedisService(DockerService[RedisConfig]):
-    def __init__(self, client: docker.DockerClient, config: RedisConfig) -> None:
-        super().__init__(client, config)
+    def __init__(
+        self, client: docker.DockerClient, config: Optional[RedisConfig] = None
+    ) -> None:
+        super().__init__(client, config or RedisConfig())
+        self.redis_client_environment = RedisEnvironment()
 
     def ensure_ready(self):
         with log_task(
@@ -37,8 +31,8 @@ class RedisService(DockerService[RedisConfig]):
                 try:
                     # Attempt to create a connection to Redis
                     r = redis.Redis(
-                        host=self.config.environment.host,
-                        port=self.config.environment.port,
+                        host=self.redis_client_environment.host,
+                        port=self.redis_client_environment.port,
                     )
                     if r.ping():
                         return  # Redis is ready and responding
