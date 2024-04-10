@@ -1,7 +1,10 @@
 import os
 import subprocess
 import sys
+from time import sleep
 from typing import Any
+
+from rich.console import Console
 
 from bridge.console import log_task, log_warning
 from bridge.framework.base import Framework, FrameWorkHandler
@@ -126,28 +129,37 @@ class DjangoHandler(FrameWorkHandler):
         # Confirm we are in a command which expects Celery to be available
         expected_command_args = {"runserver", "runserver_plus", "shell", "shell_plus"}
         if set(sys.argv) & expected_command_args:
+            console = Console()
+            console.print(
+                "[bold bright_green]Setting up service "
+                "[white]bridge_celery[/white]..."
+            )
             with log_task("Starting local worker", "Local worker started"):
-                try:
-                    subprocess.run(
-                        ["celery", "-A", "bridge.service.django_celery", "status"],
-                        check=True,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.STDOUT,
-                    )
+                from bridge.service.django_celery import app
 
-                except subprocess.SubprocessError:
+                celery_status = app.control.inspect().ping()
+                print("status", celery_status)
+                if celery_status is None:
                     subprocess.Popen(
                         [
                             "celery",
                             "-A",
                             "bridge.service.django_celery",
                             "worker",
+                            "-c",
+                            "1",
                             "-l",
                             "INFO",
                         ],
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
                     )
+                while not app.control.inspect().ping():
+                    # Wait for celery to start
+                    sleep(0.1)
+            console.print(
+                "[bold bright_green]Service [white]bridge_celery[/white] started!"
+            )
 
 
 def configure(
