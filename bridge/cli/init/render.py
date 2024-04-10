@@ -29,6 +29,7 @@ def detect_django_settings_module(project_name: str = "") -> str:
     if os.path.exists(settings_path):
         return f"{project_name}.settings"
     else:
+        # TODO: validate input
         return console.input(
             "Please provide the path to your"
             " Django settings module (ex: myapp.settings):\n> "
@@ -43,6 +44,7 @@ def detect_application_callable(project_name: str = "") -> str:
     elif os.path.exists(asgi_path):
         return f"{project_name}.asgi:application"
     else:
+        # TODO: validate input
         return console.input(
             "Please provide the path to your WSGI or ASGI application callable "
             "(ex: myapp.wsgi:application):\n> "
