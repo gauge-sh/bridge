@@ -46,7 +46,7 @@ class ContainerConfig(BaseModel, Generic[T_Environment]):
     ports: dict[str, int] = Field(default_factory=dict)
     volumes: dict[str, str] = Field(default_factory=dict)
     restart_policy: dict[str, str] = {"Name": "always"}
-    environment: T_Environment = BaseEnvironment()
+    environment: T_Environment = Field(default_factory=BaseEnvironment)
 
     def to_container_run_kwargs(self) -> dict[str, Any]:
         # Right now the above spec matches `docker.container.run`, model_dump is sufficient
