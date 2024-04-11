@@ -1,5 +1,6 @@
 import contextlib
 import os
+import socket
 import subprocess
 import sys
 from time import sleep
@@ -191,6 +192,10 @@ class DjangoHandler(FrameWorkHandler):
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
                     )
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    while s.connect_ex(("localhost", 5555)) != 0:
+                        sleep(0.1)
+
             console.print(
                 "[bold bright_green]Service [white]bridge_flower[/white] started!"
             )
