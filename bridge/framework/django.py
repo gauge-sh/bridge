@@ -174,11 +174,6 @@ class DjangoHandler(FrameWorkHandler):
                 "[white]bridge_flower[/white]..."
             )
             with log_task("Starting flower", "Flower started"):
-                from bridge.service.django_celery import app
-
-                while not app.control.inspect().ping():
-                    # Wait for celery to start
-                    sleep(0.1)
                 # Account for flower already running
                 with contextlib.suppress(OSError):
                     dot_bridge_path = resolve_dot_bridge() / "flower_db"
@@ -192,9 +187,11 @@ class DjangoHandler(FrameWorkHandler):
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
                     )
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    while s.connect_ex(("localhost", 5555)) != 0:
-                        sleep(0.1)
+                port_bound = False
+                while not port_bound:
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        port_bound = s.connect_ex(("localhost", 5555)) == 0
+                    sleep(0.1)
 
             console.print(
                 "[bold bright_green]Service [white]bridge_flower[/white] started!"
