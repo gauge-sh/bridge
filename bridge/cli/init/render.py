@@ -32,7 +32,7 @@ def detect_framework() -> Framework:
 
 
 def detect_django_settings_module(project_name: str = "") -> str:
-    settings_path = f"{project_name}/settings.py"
+    settings_path = Path(project_name) / "settings.py"
     if os.path.exists(settings_path):
         return f"{project_name}.settings"
     else:
@@ -51,8 +51,9 @@ def detect_django_settings_module(project_name: str = "") -> str:
 
 
 def detect_application_callable(project_name: str = "") -> str:
-    wsgi_path = f"{project_name}/wsgi.py"
-    asgi_path = f"{project_name}/asgi.py"
+    project_path = Path(project_name)
+    wsgi_path = project_path / "wsgi.py"
+    asgi_path = project_path / "asgi.py"
     if os.path.exists(wsgi_path):
         return f"{project_name}.wsgi:application"
     elif os.path.exists(asgi_path):
