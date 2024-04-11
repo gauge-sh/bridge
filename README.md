@@ -10,12 +10,12 @@ Automate your local and deployed infra in one line.
 [docs]
 
 ### What is bridge?
-Bridge enables you to seamlessly run and deploy all of the infrastructure you need for a complete Django project.
+Bridge enables you to seamlessly run and deploy all the infrastructure you need for a complete Django project.
 
 - One line of copy-paste configuration
-- Local postgres database automatically configured and connected
+- Local Postgres database automatically configured and connected
 - Local Redis and Celery instances automatically configured and connected
-- Easy one-command deploy configuration to Render 
+- Easy one-command deploy configuration to Render
 
 ### Installation
 ```bash
@@ -28,48 +28,6 @@ from bridge.django import configure
 
 configure(locals())
 ```
-
-[//]: # (<details>)
-
-[//]: # (<summary>Django</summary>)
-
-[//]: # (Place this code snippet at the end of your `settings.py` file:)
-
-[//]: # (<pre><code class="language-python">from bridge.framework.django import configure)
-
-[//]: # (configure&#40;locals&#40;&#41;&#41;)
-
-[//]: # (</code></pre>)
-
-[//]: # (</details>)
-
-[//]: # (<details>)
-
-[//]: # (<summary>Flask</summary>)
-
-[//]: # (Place this code snippet at the end of your `settings.py` file:)
-
-[//]: # (<pre><code class="language-python">from bridge.flask import configure)
-
-[//]: # (configure&#40;locals&#40;&#41;&#41;)
-
-[//]: # (</code></pre>)
-
-[//]: # (</details>)
-
-[//]: # (<details>)
-
-[//]: # (<summary>Fast API</summary>)
-
-[//]: # (Place this code snippet at the end of your `settings.py` file:)
-
-[//]: # (<pre><code class="language-python">from bridge.fastapi import configure)
-
-[//]: # (configure&#40;locals&#40;&#41;&#41;)
-
-[//]: # (</code></pre>)
-
-[//]: # (</details>)
 
 
 The next time you start up your application, bridge will create and configure local infrastructure for you:
@@ -102,7 +60,7 @@ Bridge can also handle deployed configuration for your app as well! Simply run:
 ```bash
 bridge init render
 ```
-and bridge will create all of the configuration necessary for you to immediately deploy to [Render](https://render.com/).
+and bridge will create all the configuration necessary for you to immediately deploy to [Render](https://render.com/).
 
 In the future, we'll look into supporting more deployment runtimes such as Heroku, AWS, GCP, Azure, etc.
 
