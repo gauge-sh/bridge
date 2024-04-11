@@ -24,7 +24,7 @@ class PostgresConfig(ContainerConfig[PostgresEnvironment]):
     ports: dict[str, int] = {"5432/tcp": 5432}
     volumes: dict[str, Union[list[str], dict[str, str]]] = Field(
         default_factory=lambda: {
-            f"{resolve_dot_bridge()}/pgdata": {
+            str(resolve_dot_bridge() / "pgdata"): {
                 "bind": "/var/lib/postgresql/data",
                 "mode": "rw",
             }
