@@ -50,6 +50,8 @@ class FrameWorkHandler(ABC):
         if self.enable_postgres:
             self.configure_postgres(platform=platform)
         if self.enable_worker:
+            # NOTE: worker and flower MUST be configured last, since they
+            # will read the framework locals immediately
             self.configure_worker(platform=platform)
 
     def start_local_services(self):
