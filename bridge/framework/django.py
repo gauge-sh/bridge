@@ -184,7 +184,7 @@ class DjangoHandler(FrameWorkHandler):
                     subprocess.Popen(
                         "nohup "
                         "celery -A bridge.service.django_celery flower "
-                        "--persistent=True --db='{dot_bridge_path}'"
+                        f"--persistent=True --db='{dot_bridge_path}'"
                         " > /dev/null 2>&1 &",
                         shell=True,
                         stdin=subprocess.DEVNULL,
