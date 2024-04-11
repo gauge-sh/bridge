@@ -147,10 +147,13 @@ class DjangoHandler(FrameWorkHandler):
                 # Check if celery is already running
                 if not app.control.inspect().ping():
                     subprocess.Popen(
-                        "nohup celery -A bridge.service.django_celery worker -c 1 -l INFO &",
+                        "nohup "
+                        "celery -A bridge.service.django_celery worker -c 1 -l INFO"
+                        " > /dev/null 2>&1 &",
                         shell=True,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
+                        start_new_session=True,
                     )
                 while not app.control.inspect().ping():
                     # Wait for celery to start
@@ -178,8 +181,10 @@ class DjangoHandler(FrameWorkHandler):
                 with contextlib.suppress(OSError):
                     dot_bridge_path = resolve_dot_bridge() / "flower_db"
                     subprocess.Popen(
-                        "nohup celery -A bridge.service.django_celery "
-                        f"flower --persistent=True --db='{dot_bridge_path}' &",
+                        "nohup "
+                        "celery -A bridge.service.django_celery flower "
+                        "--persistent=True --db='{dot_bridge_path}'"
+                        " > /dev/null 2>&1 &",
                         shell=True,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
