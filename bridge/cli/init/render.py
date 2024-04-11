@@ -10,10 +10,12 @@ from bridge.cli.errors import ActionCancelledError
 from bridge.cli.init.templates import (
     build_sh_template,
     build_worker_sh_template,
+    deploy_to_render_button_template,
     render_yaml_template,
     start_sh_template,
     start_worker_sh_template,
 )
+from bridge.cli.init.templates.deploy_to_render_button import button_exists_in_content
 from bridge.console import console, log_warning
 from bridge.framework.base import Framework
 from bridge.utils.filesystem import (
@@ -176,6 +178,21 @@ TEMPLATED_FILES = [
 ]
 
 
+def add_deploy_render_button_to_readme():
+    # NOTE: assumes we are in the project dir
+    if os.path.exists("README.md"):
+        with open("README.md") as f:
+            if button_exists_in_content(f.read()):
+                # Button already in README, don't write anything to the file
+                return
+        with open("README.md", "a") as f:
+            f.write(deploy_to_render_button_template())
+    else:
+        with open("README.md", "w") as f:
+            f.write(deploy_to_render_button_template())
+
+
 def initialize_render_platform(config: RenderPlatformInitConfig):
+    add_deploy_render_button_to_readme()
     for file in TEMPLATED_FILES:
         file.write(config)
