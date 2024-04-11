@@ -12,6 +12,7 @@ from bridge.framework.base import Framework, FrameWorkHandler
 from bridge.platform import Platform
 from bridge.platform.postgres import build_postgres_environment
 from bridge.platform.redis import build_redis_environment
+from bridge.utils.filesystem import resolve_dot_bridge
 
 
 class DjangoHandler(FrameWorkHandler):
@@ -140,19 +141,9 @@ class DjangoHandler(FrameWorkHandler):
 
                 # Check if celery is already running
                 if not app.control.inspect().ping():
-                    subprocess.run(
-                        [
-                            "nohup",
-                            "celery",
-                            "-A",
-                            "bridge.service.django_celery",
-                            "worker",
-                            "-c",
-                            "1",
-                            "-l",
-                            "INFO",
-                            "&",
-                        ],
+                    subprocess.Popen(
+                        "nohup celery -A bridge.service.django_celery worker -c 1 -l INFO &",
+                        shell=True,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
                     )
@@ -180,15 +171,11 @@ class DjangoHandler(FrameWorkHandler):
                     sleep(0.1)
                 # Account for flower already running
                 with contextlib.suppress(OSError):
-                    subprocess.run(
-                        [
-                            "nohup",
-                            "celery",
-                            "-A",
-                            "bridge.service.django_celery",
-                            "flower",
-                            "&",
-                        ],
+                    dot_bridge_path = resolve_dot_bridge() / "flower_db"
+                    subprocess.Popen(
+                        "nohup celery -A bridge.service.django_celery "
+                        "--persistent=True --db='{dot_bridge_path}' flower &",
+                        shell=True,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
                     )
