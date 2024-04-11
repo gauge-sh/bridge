@@ -125,13 +125,13 @@ class DjangoHandler(FrameWorkHandler):
             self.framework_locals["MIDDLEWARE"] = middleware
 
     def configure_worker(self, platform: Platform) -> None:
-        # This will make sure the app is always imported when
-        # Django starts so that shared_task will use this app.
-        from bridge.service.django_celery import app  # noqa: F401 type: ignore
-
         environment = build_redis_environment(platform)
         self.framework_locals["CELERY_BROKER_URL"] = environment.url
         self.framework_locals["CELERY_RESULT_BACKEND"] = environment.url
+
+        # This will make sure the app is always imported when
+        # Django starts so that shared_task will use this app.
+        from bridge.service.django_celery import app  # noqa: F401 type: ignore
 
     def start_local_worker(self) -> None:
         # Confirm we are in a command which expects Celery to be available
