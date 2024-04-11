@@ -10,7 +10,7 @@ class RedisEnvironment(BaseModel):
 
     @property
     def url(self) -> str:
-        return f"redis://{self.host}:{self.port}"
+        return f"redis://{self.host}:{self.port}/{self.db}"
 
 
 def build_redis_environment(platform: Platform) -> RedisEnvironment:

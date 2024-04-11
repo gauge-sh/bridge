@@ -7,7 +7,7 @@ from typing import Any
 
 from rich.console import Console
 
-from bridge.console import log_task, log_warning
+from bridge.console import log_info, log_task, log_warning
 from bridge.framework.base import Framework, FrameWorkHandler
 from bridge.platform import Platform
 from bridge.platform.postgres import build_postgres_environment
@@ -35,9 +35,8 @@ class DjangoHandler(FrameWorkHandler):
 
     def configure_postgres(self, platform: Platform) -> None:
         if "DATABASES" in self.framework_locals:
-            log_warning(
-                "databases already configured; overwriting key. "
-                "Make sure no other instances of postgres are running."
+            log_info(
+                "Overwriting existing DATABASES configuration with Postgres configuration."
             )
 
         environment = build_postgres_environment(platform=platform)
@@ -58,8 +57,8 @@ class DjangoHandler(FrameWorkHandler):
                 "ALLOWED_HOSTS" in self.framework_locals
                 and self.framework_locals["ALLOWED_HOSTS"]
             ):
-                log_warning(
-                    "ALLOWED_HOSTS already configured and non-empty; overwriting configuration."
+                log_info(
+                    "Overwriting ALLOWED_HOSTS configuration with Render configuration."
                 )
             self.framework_locals["ALLOWED_HOSTS"] = [".onrender.com", "localhost"]
 
@@ -75,9 +74,14 @@ class DjangoHandler(FrameWorkHandler):
         if platform != Platform.LOCAL:
             if (
                 "SECRET_KEY" in self.framework_locals
+                and "SECRET_KEY" in os.environ
                 and self.framework_locals["SECRET_KEY"]
+                and self.framework_locals != os.environ.get("SECRET_KEY")
             ):
-                log_warning("SECRET_KEY already configured; overwriting configuration.")
+                # If the SECRET_KEY from the current remote environment is different
+                # from an explicitly set SECRET_KEY in the framework locals, we should
+                # log this to the console.
+                log_info("Overwriting SECRET_KEY configuration in remote environment.")
             self.framework_locals["SECRET_KEY"] = os.environ.get(
                 "SECRET_KEY", self.framework_locals.get("SECRET_KEY", "")
             )
@@ -90,8 +94,8 @@ class DjangoHandler(FrameWorkHandler):
                 or "STATICFILES_DIRS" in self.framework_locals
                 or "STATICFILES_STORAGE" in self.framework_locals
             ):
-                log_warning(
-                    "staticfiles already configured; overwriting configuration."
+                log_info(
+                    "Overwriting existing staticfiles configuration with Render configuration."
                 )
             self.framework_locals["STATIC_URL"] = "/static/"
             self.framework_locals["STATIC_ROOT"] = os.path.join(
@@ -117,6 +121,7 @@ class DjangoHandler(FrameWorkHandler):
                     )
                 else:
                     middleware.insert(0, "whitenoise.middleware.WhiteNoiseMiddleware")
+            self.framework_locals["MIDDLEWARE"] = middleware
 
     def configure_worker(self, platform: Platform) -> None:
         # This will make sure the app is always imported when

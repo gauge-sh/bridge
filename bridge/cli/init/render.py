@@ -1,16 +1,20 @@
 import os
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
 from pydantic import BaseModel
+from rich.prompt import Confirm
 
+from bridge.cli.errors import ActionCancelledError
 from bridge.cli.init.templates import (
     build_sh_template,
+    build_worker_sh_template,
     render_yaml_template,
     start_sh_template,
     start_worker_sh_template,
 )
-from bridge.console import console
+from bridge.console import console, log_warning
 from bridge.framework.base import Framework
 from bridge.utils.filesystem import (
     resolve_dot_bridge,
@@ -62,6 +66,10 @@ class RenderPlatformInitConfig(BaseModel):
     bridge_path: str
     django_config: Optional[DjangoConfig] = None
 
+    @property
+    def script_dir(self) -> str:
+        return f"bridge-{self.framework.value}-render"
+
 
 def build_render_init_config() -> RenderPlatformInitConfig:
     # NOTE: this method may request user input directly on the CLI
@@ -79,33 +87,95 @@ def build_render_init_config() -> RenderPlatformInitConfig:
         settings_module = detect_django_settings_module(project_name=project_name)
         init_config.django_config = DjangoConfig(settings_module=settings_module)
 
+    os.makedirs(init_config.script_dir, exist_ok=True)
+    if any(os.path.exists(file.PATH) for file in TEMPLATED_FILES):
+        log_warning("Configuration files already exist.")
+        if not Confirm.ask("Do you want to overwrite them? [y/N]", console=console):
+            raise ActionCancelledError("Not overwriting existing configuration files.")
+
     return init_config
 
 
-def initialize_render_platform(config: RenderPlatformInitConfig):
-    build_sh_path = Path("./render-build.sh")
-    with build_sh_path.open(mode="w") as f:
-        f.write(build_sh_template(framework=config.framework))
-    set_executable(build_sh_path)
+class TemplatedFile(ABC):
+    PATH: Path
+    EXECUTABLE: bool = False
 
-    start_sh_path = Path("./render-start.sh")
-    with start_sh_path.open(mode="w") as f:
-        f.write(start_sh_template(app_path=config.app_path))
-    set_executable(start_sh_path)
+    @classmethod
+    @abstractmethod
+    def build(cls, config: RenderPlatformInitConfig) -> str: ...
 
-    start_worker_sh_path = Path("./render-start-worker.sh")
-    with start_worker_sh_path.open(mode="w") as f:
-        f.write(start_worker_sh_template(framework=config.framework))
-    set_executable(start_worker_sh_path)
+    @classmethod
+    def write(cls, config: RenderPlatformInitConfig):
+        # For now, assume executables always belong in the script_dir
+        prefix_path = Path(config.script_dir) if cls.EXECUTABLE else None
+        path = prefix_path / cls.PATH if prefix_path else cls.PATH
+        with path.open(mode="w") as f:
+            f.write(cls.build(config=config))
+        if cls.EXECUTABLE:
+            set_executable(path)
 
-    with open("render.yaml", "w") as f:
-        f.write(
-            render_yaml_template(
-                framework=config.framework,
-                service_name=config.project_name,
-                database_name=f"{config.project_name}_db",
-                django_settings_module=config.django_config.settings_module
-                if config.django_config
-                else "",
-            )
+
+class BuildSh(TemplatedFile):
+    PATH = Path("build.sh")
+    EXECUTABLE = True
+
+    @classmethod
+    def build(cls, config: RenderPlatformInitConfig) -> str:
+        return build_sh_template(framework=config.framework)
+
+
+class BuildWorkerSh(TemplatedFile):
+    PATH = Path("build-worker.sh")
+    EXECUTABLE = True
+
+    @classmethod
+    def build(cls, config: RenderPlatformInitConfig) -> str:
+        return build_worker_sh_template(framework=config.framework)
+
+
+class StartSh(TemplatedFile):
+    PATH = Path("start.sh")
+    EXECUTABLE = True
+
+    @classmethod
+    def build(cls, config: RenderPlatformInitConfig) -> str:
+        return start_sh_template(app_path=config.app_path)
+
+
+class StartWorkerSh(TemplatedFile):
+    PATH = Path("start-worker.sh")
+    EXECUTABLE = True
+
+    @classmethod
+    def build(cls, config: RenderPlatformInitConfig) -> str:
+        return start_worker_sh_template(framework=config.framework)
+
+
+class RenderYaml(TemplatedFile):
+    PATH = Path("render.yaml")
+
+    @classmethod
+    def build(cls, config: RenderPlatformInitConfig) -> str:
+        return render_yaml_template(
+            framework=config.framework,
+            script_dir=config.script_dir,
+            service_name=config.project_name,
+            database_name=f"{config.project_name}_db",
+            django_settings_module=config.django_config.settings_module
+            if config.django_config
+            else "",
         )
+
+
+TEMPLATED_FILES = [
+    BuildSh,
+    BuildWorkerSh,
+    StartSh,
+    StartWorkerSh,
+    RenderYaml,
+]
+
+
+def initialize_render_platform(config: RenderPlatformInitConfig):
+    for file in TEMPLATED_FILES:
+        file.write(config)

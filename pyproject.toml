@@ -30,7 +30,6 @@ dependencies = [
     "celery==5.3.6",
     "rich==13.7.1",
     "pydantic==2.6.4",
-    "google-cloud-storage==2.16.0",
     "dj-database-url==2.1.0"
 ]
 
