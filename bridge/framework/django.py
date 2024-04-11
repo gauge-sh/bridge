@@ -186,6 +186,7 @@ class DjangoHandler(FrameWorkHandler):
                         stdin=subprocess.DEVNULL,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
+                        start_new_session=True,
                     )
                 port_bound = False
                 while not port_bound:
