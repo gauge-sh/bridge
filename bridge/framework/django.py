@@ -1,5 +1,6 @@
 import contextlib
 import os
+import socket
 import subprocess
 import sys
 from time import sleep
@@ -147,10 +148,14 @@ class DjangoHandler(FrameWorkHandler):
                 # Check if celery is already running
                 if not app.control.inspect().ping():
                     subprocess.Popen(
-                        "nohup celery -A bridge.service.django_celery worker -c 1 -l INFO &",
+                        "nohup "
+                        "celery -A bridge.service.django_celery worker -c 1 -l INFO"
+                        " > /dev/null 2>&1 &",
                         shell=True,
+                        stdin=subprocess.DEVNULL,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
+                        start_new_session=True,
                     )
                 while not app.control.inspect().ping():
                     # Wait for celery to start
@@ -169,21 +174,26 @@ class DjangoHandler(FrameWorkHandler):
                 "[white]bridge_flower[/white]..."
             )
             with log_task("Starting flower", "Flower started"):
-                from bridge.service.django_celery import app
-
-                while not app.control.inspect().ping():
-                    # Wait for celery to start
-                    sleep(0.1)
                 # Account for flower already running
                 with contextlib.suppress(OSError):
                     dot_bridge_path = resolve_dot_bridge() / "flower_db"
                     subprocess.Popen(
-                        "nohup celery -A bridge.service.django_celery "
-                        f"flower --persistent=True --db='{dot_bridge_path}' &",
+                        "nohup "
+                        "celery -A bridge.service.django_celery flower "
+                        f"--persistent=True --db='{dot_bridge_path}'"
+                        " > /dev/null 2>&1 &",
                         shell=True,
+                        stdin=subprocess.DEVNULL,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
+                        start_new_session=True,
                     )
+                port_bound = False
+                while not port_bound:
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        port_bound = s.connect_ex(("localhost", 5555)) == 0
+                    sleep(0.1)
+
             console.print(
                 "[bold bright_green]Service [white]bridge_flower[/white] started!"
             )
