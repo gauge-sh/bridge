@@ -174,7 +174,7 @@ class DjangoHandler(FrameWorkHandler):
                     dot_bridge_path = resolve_dot_bridge() / "flower_db"
                     subprocess.Popen(
                         "nohup celery -A bridge.service.django_celery "
-                        "--persistent=True --db='{dot_bridge_path}' flower &",
+                        f"flower --persistent=True --db='{dot_bridge_path}' &",
                         shell=True,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
