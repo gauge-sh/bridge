@@ -1,3 +1,4 @@
+import os
 from time import sleep
 from typing import Optional
 
@@ -38,3 +39,8 @@ class RedisService(DockerService[RedisConfig]):
                         return  # Redis is ready and responding
                 except redis.ConnectionError:
                     sleep(0.1)
+
+    def shell(self):
+        # Open a shell to the Redis container
+        # NOTE: This entirely replaces the currently running process!
+        os.execvp("docker", ["docker", "exec", "-it", self.config.name, "redis-cli"])

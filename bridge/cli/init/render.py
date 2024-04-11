@@ -18,17 +18,12 @@ from bridge.cli.init.templates import (
 )
 from bridge.cli.init.templates.deploy_to_render_button import button_exists_in_content
 from bridge.console import console, log_warning
-from bridge.framework.base import Framework
+from bridge.framework import Framework
 from bridge.utils.filesystem import (
     resolve_dot_bridge,
     resolve_project_dir,
     set_executable,
 )
-
-
-def detect_framework() -> Framework:
-    # TODO: auto-detect framework (assuming Django)
-    return Framework.DJANGO
 
 
 def detect_django_settings_module(project_name: str = "") -> str:
@@ -99,10 +94,9 @@ class RenderPlatformInitConfig(BaseModel):
         return f"bridge-{self.framework.value}-render"
 
 
-def build_render_init_config() -> RenderPlatformInitConfig:
+def build_render_init_config(framework: Framework) -> RenderPlatformInitConfig:
     # NOTE: this method may request user input directly on the CLI
     #   to determine configuration when it cannot be auto-detected
-    framework = detect_framework()
     project_name = resolve_project_dir().name
     app_path = detect_application_callable(project_name=project_name)
     bridge_path = resolve_dot_bridge()

@@ -1,3 +1,4 @@
+import os
 from time import sleep
 from typing import Optional, Union
 
@@ -58,3 +59,25 @@ class PostgresService(DockerService[PostgresConfig]):
                         return
                 except psycopg.OperationalError:
                     sleep(0.1)
+
+    def shell(self):
+        # Open a shell to the Postgres container
+        # NOTE: This entirely replaces the currently running process!
+        os.execvp(
+            "docker",
+            [
+                "docker",
+                "exec",
+                "-it",
+                self.config.name,
+                "psql",
+                "-U",
+                self.config.environment.POSTGRES_USER,
+                "-d",
+                self.config.environment.POSTGRES_DB,
+                "-h",
+                self.config.environment.POSTGRES_HOST,
+                "-p",
+                self.config.environment.POSTGRES_PORT,
+            ],
+        )
