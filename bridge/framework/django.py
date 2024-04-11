@@ -1,3 +1,4 @@
+import contextlib
 import os
 import subprocess
 import sys
@@ -139,8 +140,9 @@ class DjangoHandler(FrameWorkHandler):
 
                 # Check if celery is already running
                 if not app.control.inspect().ping():
-                    subprocess.Popen(
+                    subprocess.run(
                         [
+                            "nohup",
                             "celery",
                             "-A",
                             "bridge.service.django_celery",
@@ -149,6 +151,7 @@ class DjangoHandler(FrameWorkHandler):
                             "1",
                             "-l",
                             "INFO",
+                            "&",
                         ],
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
@@ -158,6 +161,39 @@ class DjangoHandler(FrameWorkHandler):
                     sleep(0.1)
             console.print(
                 "[bold bright_green]Service [white]bridge_celery[/white] started!"
+            )
+
+    def start_local_flower(self) -> None:
+        # Confirm we are in a command which expects flower to be available
+        expected_command_args = {"runserver", "runserver_plus", "shell", "shell_plus"}
+        if set(sys.argv) & expected_command_args:
+            console = Console()
+            console.print(
+                "[bold bright_green]Setting up service "
+                "[white]bridge_flower[/white]..."
+            )
+            with log_task("Starting flower", "Flower started"):
+                from bridge.service.django_celery import app
+
+                while not app.control.inspect().ping():
+                    # Wait for celery to start
+                    sleep(0.1)
+                # Account for flower already running
+                with contextlib.suppress(OSError):
+                    subprocess.run(
+                        [
+                            "nohup",
+                            "celery",
+                            "-A",
+                            "bridge.service.django_celery",
+                            "flower",
+                            "&",
+                        ],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.STDOUT,
+                    )
+            console.print(
+                "[bold bright_green]Service [white]bridge_flower[/white] started!"
             )
 
 
