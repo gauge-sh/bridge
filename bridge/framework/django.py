@@ -151,6 +151,7 @@ class DjangoHandler(FrameWorkHandler):
                         "celery -A bridge.service.django_celery worker -c 1 -l INFO"
                         " > /dev/null 2>&1 &",
                         shell=True,
+                        stdin=subprocess.DEVNULL,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
                         start_new_session=True,
@@ -186,6 +187,7 @@ class DjangoHandler(FrameWorkHandler):
                         "--persistent=True --db='{dot_bridge_path}'"
                         " > /dev/null 2>&1 &",
                         shell=True,
+                        stdin=subprocess.DEVNULL,
                         stdout=subprocess.DEVNULL,
                         stderr=subprocess.STDOUT,
                     )
