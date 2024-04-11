@@ -60,6 +60,7 @@ class FrameWorkHandler(ABC):
         if self.enable_worker:
             self.start_local_redis(client)
             self.start_local_worker()
+            self.start_local_flower()
 
     def start_local_postgres(self, client: docker.DockerClient) -> None:
         service = PostgresService(client=client)
@@ -75,11 +76,15 @@ class FrameWorkHandler(ABC):
         pass
 
     @abstractmethod
+    def start_local_flower(self) -> None:
+        """start a local celery flower instance configured for the correct framework"""
+
+    @abstractmethod
     def configure_postgres(self, platform: Platform) -> None:
         """Update framework_locals with the correct configuration for postgres"""
         pass
 
     @abstractmethod
     def configure_worker(self, platform: Platform) -> None:
-        """Update framework_locals with the correct configuration for postgres"""
+        """Update framework_locals with the correct configuration for celery"""
         pass
