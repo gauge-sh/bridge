@@ -1,6 +1,14 @@
 import argparse
 
-from bridge.cli.init import initialize_platform
+from bridge.cli.db import open_database_shell
+from bridge.cli.init import initialize
+from bridge.cli.redis import open_redis_shell
+from bridge.framework import Framework
+
+
+def detect_framework() -> Framework:
+    # TODO: auto-detect framework (assuming Django)
+    return Framework.DJANGO
 
 
 def main():
@@ -8,7 +16,7 @@ def main():
     parser = argparse.ArgumentParser(prog="bridge")
     # TODO: tie this version output to the version in pyproject.toml
     parser.add_argument("--version", action="version", version="%(prog)s 0.0.22")
-    subparsers = parser.add_subparsers(dest="command", help="sub-command help")
+    subparsers = parser.add_subparsers(dest="command")
 
     # Parser for 'init' command
     init_parser = subparsers.add_parser(
@@ -19,25 +27,34 @@ def main():
         help="Platform where you want to deploy this app",
         choices=["render", "railway", "heroku"],
     )
-    init_parser.add_argument(
-        "--wsgi-path",
-        help="Path to your WSGI application callable (ex: myapp.wsgi:application)",
-        required=False,
-    )
-    init_parser.add_argument(
-        "--asgi-path",
-        help="Path to your ASGI application callable (ex: myapp.asgi:application)",
-        required=False,
-    )
+
+    # Parser for db
+    db_parser = subparsers.add_parser("db", help="Interact with the database")
+    db_subparsers = db_parser.add_subparsers(dest="db_command")
+    db_subparsers.add_parser("shell", help="Open a database shell (psql)")
+
+    # Parser for redis
+    redis_parser = subparsers.add_parser("redis", help="Interact with Redis")
+    redis_subparsers = redis_parser.add_subparsers(dest="redis_command")
+    redis_subparsers.add_parser("shell", help="Open a Redis shell (redis-cli)")
 
     # Parse the arguments
     args = parser.parse_args()
+    framework = detect_framework()
 
+    # TODO: pattern for additional config from the CLI
     if args.command == "init":
-        # Additional validation for the arguments
-        if args.command == "init" and args.wsgi_path and args.asgi_path:
-            parser.error("Both WSGI and ASGI paths cannot be provided")
-        initialize_platform(args.init_platform)
+        initialize(framework=framework, platform=args.init_platform)
+    elif args.command == "db":
+        if args.db_command == "shell":
+            open_database_shell()
+        else:
+            db_parser.print_help()
+    elif args.command == "redis":
+        if args.redis_command == "shell":
+            open_redis_shell()
+        else:
+            redis_parser.print_help()
     else:
         parser.print_help()
 
