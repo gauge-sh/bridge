@@ -49,3 +49,7 @@ jobs:
         coverage run --branch --source=../../../ ./manage.py check
         coverage report
         cd ../../../
+    - name: Run tests
+      run: |
+        source .venv/bin/activate
+        pytest -s -vv tests/configuration
