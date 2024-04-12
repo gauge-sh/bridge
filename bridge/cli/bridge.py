@@ -29,10 +29,14 @@ def main():
     )
 
     # Parser for db
-    subparsers.add_parser("db", help="Open a database shell")
+    db_parser = subparsers.add_parser("db", help="Interact with the database")
+    db_subparsers = db_parser.add_subparsers(dest="db_command")
+    db_subparsers.add_parser("shell", help="Open a database shell (psql)")
 
     # Parser for redis
-    subparsers.add_parser("redis", help="Open a redis shell")
+    redis_parser = subparsers.add_parser("redis", help="Interact with Redis")
+    redis_subparsers = redis_parser.add_subparsers(dest="redis_command")
+    redis_subparsers.add_parser("shell", help="Open a Redis shell (redis-cli)")
 
     # Parse the arguments
     args = parser.parse_args()
@@ -42,9 +46,15 @@ def main():
     if args.command == "init":
         initialize(framework=framework, platform=args.init_platform)
     elif args.command == "db":
-        open_database_shell()
+        if args.db_command == "shell":
+            open_database_shell()
+        else:
+            db_parser.print_help()
     elif args.command == "redis":
-        open_redis_shell()
+        if args.redis_command == "shell":
+            open_redis_shell()
+        else:
+            redis_parser.print_help()
     else:
         parser.print_help()
 
