@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from rich.console import Console
 
 from bridge.console import log_error, log_task
+from bridge.utils.filesystem import resolve_dot_bridge
 from bridge.utils.pydantic import Empty
 
 if TYPE_CHECKING:
@@ -49,6 +50,7 @@ class DockerService(ABC, Generic[T_ContainerConfig]):
     def __init__(self, client: docker.DockerClient, config: T_ContainerConfig) -> None:
         self.client = client
         self.config = config
+        self.container_id = None
         # todo add self.container - should we start or fetch the container on startup?
 
     def start(self):
@@ -60,9 +62,15 @@ class DockerService(ABC, Generic[T_ContainerConfig]):
         self.pull_image()
         self.start_container()
         self.ensure_ready()
+        self.register()
         console.print(
             f"[bold bright_green]Service [white]{self.config.name}[/white] started!"
         )
+
+    def register(self):
+        bridge_cid_path = resolve_dot_bridge() / "cid"
+        with open(bridge_cid_path, "a") as f:
+            f.write(f"{self.container_id}\n")
 
     def pull_image(self):
         with log_task(
@@ -87,10 +95,12 @@ class DockerService(ABC, Generic[T_ContainerConfig]):
                 if container.status in ["paused", "exited"]:
                     container.restart()
             else:
-                self.client.containers.run(
+                container = self.client.containers.run(
                     **self.config.model_dump(),
                     detach=True,
                 )
+            container = cast(Container, container)
+            self.container_id = container.id
 
     @abstractmethod
     def ensure_ready(self) -> None:

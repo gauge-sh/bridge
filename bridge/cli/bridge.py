@@ -3,6 +3,7 @@ import argparse
 from bridge.cli.db import open_database_shell
 from bridge.cli.init import initialize
 from bridge.cli.redis import open_redis_shell
+from bridge.cli.stop import stop
 from bridge.config import get_config
 from bridge.framework import Framework
 
@@ -18,6 +19,9 @@ def main():
     # TODO: tie this version output to the version in pyproject.toml
     parser.add_argument("--version", action="version", version="%(prog)s 0.0.24")
     subparsers = parser.add_subparsers(dest="command")
+
+    # Parser for 'stop'
+    subparsers.add_parser("stop", help="Stop all running local services")
 
     # Parser for 'init' command
     init_parser = subparsers.add_parser(
@@ -44,7 +48,9 @@ def main():
     framework = detect_framework()
     bridge_config = get_config()
 
-    if args.command == "init":
+    if args.command == "stop":
+        stop()
+    elif args.command == "init":
         initialize(
             framework=framework,
             platform=args.init_platform,
