@@ -3,11 +3,9 @@
 ---
 Fully automate your local and deployed infrastructure.
 
-#todo add gif
+![](https://raw.githubusercontent.com/Never-Over/bridge/main/docs/runserver_demo.gif)
 
- 
-
-[docs]
+[Docs](https://never-over.github.io/bridge/)
 
 ### What is bridge?
 Bridge enables you to seamlessly run and deploy all the infrastructure you need for a complete Django project.
@@ -86,11 +84,10 @@ How does bridge work?
 - Bridge spins up and runs all the services needed for your infrastructure in the background. Postgres and Redis run in docker containers, while Celery and Celery Flower (which need to understand your application code) run as background processes.
 
 What if I don't need all the services that bridge provides?
-- [for evan to fill out]
+- Bridge is designed to be modular. You can configure only the services you need by editing the `bridge.yaml` file that bridge creates in your project root. By default, `enable_postgres: true` and `enable_worker: true` are set, but you can change these to `false` to prevent bridge from configuring Postgres and Celery respectively.
 
 How can I stop the services that bridge spins up?
 - `bridge stop` will stop all running services.
-
 
 How can I access the database directly?
 - Locally, bridge provides access to a psql shell through `bridge db shell`. Remotely, [Render has instructions for connecting](https://docs.render.com/databases#connecting-with-the-external-url). 
@@ -99,4 +96,4 @@ How can I access redis directly?
 - Bridge provides access to redis-cli through `bridge redis shell`. Remotely, [Render has instructions for connecting](https://docs.render.com/redis#connecting-using-redis-cli).
 
 How can I access Celery?
-- Flower is a web interface into all the information you need to debug and work with Celery. By default, bridge will run Flower on http://localhost:5000.
+- Flower is a web interface into all the information you need to debug and work with Celery. By default, bridge will run Flower on http://localhost:5555.
