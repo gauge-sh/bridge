@@ -1,7 +1,7 @@
 # bridge
 
 ---
-Automate your local and deployed infra in one line.
+Fully automate your local and deployed infrastructure.
 
 #todo add gif
 
@@ -12,17 +12,24 @@ Automate your local and deployed infra in one line.
 ### What is bridge?
 Bridge enables you to seamlessly run and deploy all the infrastructure you need for a complete Django project.
 
-- One line of copy-paste configuration
+- Two lines of copy-paste configuration
 - Local Postgres database automatically configured and connected
-- Local Redis and Celery instances automatically configured and connected
+- Local Redis instance automatically configured and connected
+- Local Celery and Celery Flower instance automatically configured and connected
 - Easy one-command deploy configuration to Render
 
 ### Installation
+Install [Docker](https://docs.docker.com/get-docker/) and verify it's running:
+```bash
+> docker version
+Client: ...
+```
+Install bridge:
 ```bash
 pip install python-bridge
 ```
 ### Usage
-Adding bridge to your project is incredibly simple:
+Add the following code to the end of your `settings.py` file (or `DJANGO_SETTINGS_MODULE`):
 ```python
 from bridge.django import configure
 
@@ -47,6 +54,9 @@ Service bridge_redis started!
 Setting up service bridge_celery...
 [12:00:00] ✓ Local worker started
 Service bridge_celery started!
+Setting up service bridge_flower...
+[00:02:52] ✓ Flower started
+Service bridge_flower started!
 Performing system checks...
 
 System check identified no issues (0 silenced).
@@ -60,22 +70,33 @@ Bridge can also handle deployed configuration for your app as well! Simply run:
 ```bash
 bridge init render
 ```
-and bridge will create all the configuration necessary for you to immediately deploy to [Render](https://render.com/).
+You may be prompted for the entrypoint of your application and settings file if bridge cannot detect them. 
+Bridge will create all the configuration necessary for you to immediately deploy to [Render](https://render.com/). This includes a Blueprint `render.yaml` as well as build scripts and start scripts for your Django application.
+After running `bridge init render`, commit the changes and visit your project on github. You will see the following button at the end of your README in the root of your repository:
 
-In the future, we'll look into supporting more deployment runtimes such as Heroku, AWS, GCP, Azure, etc.
+![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)
+
+To deploy your application to the world, simply click the button! Bridge will configure everything needed for Render to deploy and host your app.
+
+In the future, we'll look into supporting more deployment runtimes such as Heroku, AWS, GCP, Azure, and more.
 
 ### FAQ
 
-Local: celery logs, psql, flower?
-Deployed: environment variables, etc.
+How does bridge work?
+- Bridge spins up and runs all the services needed for your infrastructure in the background. Postgres and Redis run in docker containers, while Celery and Celery Flower (which need to understand your application code) run as background processes.
 
-### Advanced usage
-- turn on/off different services
-- specify environment variables?
+What if I don't need all the services that bridge provides?
+- [for evan to fill out]
+
+How can I stop the services that bridge spins up?
+- `bridge stop` will stop all running services.
 
 
-### TODO
-- add support for celery, redis, mailhog/mail, jupyter
-- add support for flask, fastapi, ...
-- add support for `pip install python-bridge[redis,flask,etc]`
+How can I access the database directly?
+- Locally, bridge provides access to a psql shell through `bridge db shell`. Remotely, [Render has instructions for connecting](https://docs.render.com/databases#connecting-with-the-external-url). 
 
+How can I access redis directly?
+- Bridge provides access to redis-cli through `bridge redis shell`. Remotely, [Render has instructions for connecting](https://docs.render.com/redis#connecting-using-redis-cli).
+
+How can I access Celery?
+- Flower is a web interface into all the information you need to debug and work with Celery. By default, bridge will run Flower on http://localhost:5000.

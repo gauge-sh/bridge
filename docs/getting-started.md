@@ -4,6 +4,11 @@ Bridge includes an SDK and CLI tool which operate within your Django project. Th
 
 ## Requirements
 Bridge requires **[Docker](https://docs.docker.com/get-docker/)** to be installed on your machine.
+Verify your docker installation with:
+```bash
+> docker version
+Client: ...
+```
 
 ## Installation
 ```bash
@@ -20,7 +25,6 @@ from bridge.django import configure
 
 configure(locals())
 ```
-
 
 The next time you start up your application, bridge will create and configure local infrastructure for you:
 ```bash
@@ -39,21 +43,28 @@ Service bridge_redis started!
 Setting up service bridge_celery...
 [12:00:00] ✓ Local worker started
 Service bridge_celery started!
+Setting up service bridge_flower...
+[00:02:52] ✓ Flower started
+Service bridge_flower started!
 Performing system checks...
 
 System check identified no issues (0 silenced).
 Starting development server at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 ```
-That's it! You now have all the local infrastructure you need to run your Django application.
+That's it! You now have all the local infrastructure you need to run your django application.
 
-## Deployment
-Bridge handles your deployed infrastructure settings without changing any code! Simply run:
+### Deploys
+Bridge can also handle deployed configuration for your app as well! Simply run:
 ```bash
 bridge init render
 ```
-and bridge will create all the configuration necessary for you to immediately deploy to [Render](https://render.com/).
+You may be prompted for the entrypoint of your application and settings file if bridge cannot detect them. 
+Bridge will create all the configuration necessary for you to immediately deploy to [Render](https://render.com/). This includes a Blueprint `render.yaml` as well as build scripts and start scripts for your Django application.
+After running `bridge init render`, commit the changes and visit your project on github. You will see the following button at the end of your README in the root of your repository:
 
-This includes a Blueprint `render.yaml` as well as build scripts and start scripts for your Django application.
+![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)
 
-To deploy your application, follow the steps outlined in the [Render documentation](https://docs.render.com/infrastructure-as-code#setup) (steps 3-8).
+To deploy your application to the world, simply click the button! Bridge will configure everything needed for Render to deploy and host your app.
+
+In the future, we'll look into supporting more deployment runtimes such as Heroku, AWS, GCP, Azure, and more.
