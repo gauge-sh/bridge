@@ -1,6 +1,6 @@
 [project]
 name = "python-bridge"
-version = "0.0.24"
+version = "0.1.0"
 authors = [
   { name="Caelean Barnes", email="caeleanb@gmail.com" },
   { name="Evan Doyle", email="evanmdoyle@gmail.com" },
@@ -33,6 +33,7 @@ dependencies = [
     "pydantic==2.6.4",
     "pyyaml==6.0.1",
     "dj-database-url==2.1.0"
+    "psutil==5.9.8",
 ]
 
 [project.urls]
