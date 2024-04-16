@@ -17,6 +17,7 @@ from bridge.cli.init.templates import (
     start_worker_sh_template,
 )
 from bridge.cli.init.templates.deploy_to_render_button import button_exists_in_content
+from bridge.config import BridgeConfig
 from bridge.console import console, log_warning
 from bridge.framework import Framework
 from bridge.utils.filesystem import (
@@ -87,6 +88,8 @@ class RenderPlatformInitConfig(BaseModel):
     project_name: str
     app_path: str
     bridge_path: str
+    enable_postgres: bool = True
+    enable_worker: bool = True
     django_config: Optional[DjangoConfig] = None
 
     @property
@@ -94,14 +97,20 @@ class RenderPlatformInitConfig(BaseModel):
         return f"bridge-{self.framework.value}-render"
 
 
-def build_render_init_config(framework: Framework) -> RenderPlatformInitConfig:
+def build_render_init_config(
+    framework: Framework, bridge_config: BridgeConfig
+) -> RenderPlatformInitConfig:
     # NOTE: this method may request user input directly on the CLI
     #   to determine configuration when it cannot be auto-detected
     project_name = resolve_project_dir().name
     app_path = detect_application_callable(project_name=project_name)
     bridge_path = resolve_dot_bridge()
     init_config = RenderPlatformInitConfig(
-        project_name=project_name, app_path=app_path, bridge_path=str(bridge_path)
+        project_name=project_name,
+        app_path=app_path,
+        bridge_path=str(bridge_path),
+        enable_postgres=bridge_config.enable_postgres,
+        enable_worker=bridge_config.enable_worker,
     )
 
     # Provide framework-specific configuration
@@ -131,8 +140,13 @@ class TemplatedFile(ABC):
         # For now, assume executables always belong in the script_dir
         prefix_path = Path(config.script_dir) if cls.EXECUTABLE else None
         path = prefix_path / cls.PATH if prefix_path else cls.PATH
+        content = cls.build(config=config)
+        if not content:
+            # Empty or falsy content signals no file should be written
+            return
+
         with path.open(mode="w") as f:
-            f.write(cls.build(config=config))
+            f.write(content)
         if cls.EXECUTABLE:
             set_executable(path)
 
@@ -152,7 +166,9 @@ class BuildWorkerSh(TemplatedFile):
 
     @classmethod
     def build(cls, config: RenderPlatformInitConfig) -> str:
-        return build_worker_sh_template(framework=config.framework)
+        if config.enable_worker:
+            return build_worker_sh_template(framework=config.framework)
+        return ""
 
 
 class StartSh(TemplatedFile):
@@ -170,7 +186,9 @@ class StartWorkerSh(TemplatedFile):
 
     @classmethod
     def build(cls, config: RenderPlatformInitConfig) -> str:
-        return start_worker_sh_template(framework=config.framework)
+        if config.enable_worker:
+            return start_worker_sh_template(framework=config.framework)
+        return ""
 
 
 class RenderYaml(TemplatedFile):
@@ -183,6 +201,8 @@ class RenderYaml(TemplatedFile):
             script_dir=config.script_dir,
             service_name=config.project_name,
             database_name=f"{config.project_name}_db",
+            enable_postgres=config.enable_postgres,
+            enable_worker=config.enable_worker,
             django_settings_module=config.django_config.settings_module
             if config.django_config
             else "",

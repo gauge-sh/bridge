@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 import yaml
 from pydantic import BaseModel
@@ -30,11 +31,21 @@ def ensure_config_file():
             f.write(BridgeConfig().to_yaml())
 
 
+__CONFIG: Optional[BridgeConfig] = None
+
+
 def get_config() -> BridgeConfig:
+    # NOTE: not thread-safe
+    global __CONFIG
+    if __CONFIG is not None:
+        return __CONFIG
+
     ensure_config_file()
     try:
         with CONFIG_PATH.open(mode="r") as f:
-            return BridgeConfig.from_yaml(f.read())
+            __CONFIG = BridgeConfig.from_yaml(f.read())
     except yaml.YAMLError:
         log_warning("Failed to read configuration file. Using default configuration.")
-        return BridgeConfig()
+        __CONFIG = BridgeConfig()
+
+    return __CONFIG
