@@ -73,11 +73,11 @@ To deploy your application to the world, simply click the button! Bridge will co
 
 In the future, we'll look into supporting more deployment runtimes such as Heroku, AWS, GCP, Azure, and more.
 
+### Project Structure
+
 !!! note
 
-    Bridge currently assumes assumptions about your project structure as outlined below. If your project does not follow these conventions, you may need to adjust the generated files before deploying.
-
-### Project Structure
+    Bridge currently makes assumptions about your project structure as outlined below. If your project does not follow these conventions, you may need to adjust the generated files before deploying.
 
 Bridge assumes the following project structure:
 ```
