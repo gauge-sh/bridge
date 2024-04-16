@@ -2,6 +2,7 @@ import builtins
 
 import pytest
 
+from bridge.config import BridgeConfig
 from bridge.framework.django import DjangoHandler
 from bridge.platform import Platform
 
@@ -42,11 +43,11 @@ def django_settings():
 
 @pytest.fixture
 def django_handler(django_settings):
+    bridge_config = BridgeConfig()
     return DjangoHandler(
         project_name="test",
         framework_locals=django_settings,
-        enable_postgres=True,
-        enable_worker=True,
+        bridge_config=bridge_config,
     )
 
 

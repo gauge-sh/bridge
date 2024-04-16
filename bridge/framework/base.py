@@ -5,6 +5,7 @@ from typing import Any
 
 import docker
 
+from bridge.config import BridgeConfig
 from bridge.platform import Platform, detect_platform
 from bridge.service.postgres import PostgresService
 from bridge.service.redis import RedisService
@@ -23,13 +24,12 @@ class FrameWorkHandler(ABC):
         self,
         project_name: str,
         framework_locals: dict[Any, Any],
-        enable_postgres: bool,
-        enable_worker: bool,
+        bridge_config: BridgeConfig,
     ):
         self.project_name = project_name
         self.framework_locals = framework_locals
-        self.enable_postgres = enable_postgres
-        self.enable_worker = enable_worker
+        self.enable_postgres = bridge_config.enable_postgres
+        self.enable_worker = bridge_config.enable_worker
 
     def is_remote(self) -> bool:
         """

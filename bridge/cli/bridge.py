@@ -3,6 +3,7 @@ import argparse
 from bridge.cli.db import open_database_shell
 from bridge.cli.init import initialize
 from bridge.cli.redis import open_redis_shell
+from bridge.config import get_config
 from bridge.framework import Framework
 
 
@@ -41,10 +42,14 @@ def main():
     # Parse the arguments
     args = parser.parse_args()
     framework = detect_framework()
+    bridge_config = get_config()
 
-    # TODO: pattern for additional config from the CLI
     if args.command == "init":
-        initialize(framework=framework, platform=args.init_platform)
+        initialize(
+            framework=framework,
+            platform=args.init_platform,
+            bridge_config=bridge_config,
+        )
     elif args.command == "db":
         if args.db_command == "shell":
             open_database_shell()

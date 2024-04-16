@@ -8,6 +8,7 @@ from typing import Any
 
 from rich.console import Console
 
+from bridge.config import get_config
 from bridge.console import log_info, log_task, log_warning
 from bridge.framework.base import Framework, FrameWorkHandler
 from bridge.platform import Platform
@@ -199,16 +200,11 @@ class DjangoHandler(FrameWorkHandler):
             )
 
 
-def configure(
-    settings_locals: dict[Any, Any],
-    enable_postgres: bool = True,
-    enable_worker: bool = True,
-) -> None:
+def configure(settings_locals: dict[Any, Any]) -> None:
     project_name = os.path.basename(settings_locals["BASE_DIR"])
     handler = DjangoHandler(
         project_name=project_name,
         framework_locals=settings_locals,
-        enable_postgres=enable_postgres,
-        enable_worker=enable_worker,
+        bridge_config=get_config(),
     )
     handler.run()

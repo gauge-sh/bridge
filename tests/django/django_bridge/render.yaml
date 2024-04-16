@@ -23,6 +23,7 @@ services:
           name: django_bridge-redis
           type: redis
           property: connectionString
+
   - type: redis
     name: django_bridge-redis
     plan: free
@@ -52,6 +53,7 @@ services:
           name: django_bridge-redis
           type: redis
           property: connectionString
+
 
 databases:
   - name: django_bridge-db
