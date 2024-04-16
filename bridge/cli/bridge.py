@@ -17,7 +17,7 @@ def main():
     # Create the top-level parser for the 'bridge' command
     parser = argparse.ArgumentParser(prog="bridge")
     # TODO: tie this version output to the version in pyproject.toml
-    parser.add_argument("--version", action="version", version="%(prog)s 0.0.24")
+    parser.add_argument("--version", action="version", version="%(prog)s 0.1.0")
     subparsers = parser.add_subparsers(dest="command")
 
     # Parser for 'stop'
