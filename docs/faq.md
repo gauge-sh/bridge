@@ -6,10 +6,12 @@ When running locally, Bridge uses Docker to create and manage containers for Pos
 
 ### How does it work with deployments?
 
-When you are ready to deploy, Bridge creates configuration files for Render that specify how to build and run your Django application alongside the same services. Bridge also writes a "Deploy to Render" button straight into your README for added convenience!
+When you are ready to deploy, Bridge creates configuration files for Render that specify how to build and run your Django application alongside the same services. Bridge also writes a "Deploy to Render" button straight into your README for added convenience! You can deploy your application by clicking the 'Deploy to Render' button shown on your project's GitHub page.
 
 ### What if I don't need all the services that bridge provides?
-- [for evan to fill out]
+
+Bridge is designed to be modular. You can configure only the services you need by creating or editing the `bridge.yaml` file that Bridge creates in your project root. By default, `enable_postgres: true` and `enable_worker: true` are set, but you can change these to `false` to prevent bridge from configuring Postgres and Celery respectively.
+
 
 ### How can I stop the services that bridge spins up?
 `bridge stop` will stop all running services.
