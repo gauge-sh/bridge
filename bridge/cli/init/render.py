@@ -1,4 +1,5 @@
 import os
+import shutil
 from abc import ABC, abstractmethod
 from importlib.util import find_spec
 from pathlib import Path
@@ -251,7 +252,17 @@ def add_deploy_render_button_to_readme():
             f.write(deploy_to_render_button_template())
 
 
+def add_install_deps_script(config: RenderPlatformInitConfig):
+    # Assuming 'install_deps.py' is in the same directory as this file
+    src_path = Path(__file__).parent / "install_deps.py"
+    if not src_path.exists():
+        raise FileNotFoundError("install_deps.py not found in the expected location.")
+    dst_path = Path(config.script_dir) / "install_deps.py"
+    shutil.copyfile(src_path, dst_path)
+
+
 def initialize_render_platform(config: RenderPlatformInitConfig):
     add_deploy_render_button_to_readme()
+    add_install_deps_script(config)
     for file in TEMPLATED_FILES:
         file.write(config)
