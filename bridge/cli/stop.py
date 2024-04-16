@@ -35,7 +35,6 @@ def stop():
                 # Check if the name fragment is in the command line; this field is a list
                 proc_name = proc.info["cmdline"]
                 if proc_name and "bridge.service.django_celery" in proc_name:
-                    print(proc_name)
                     proc.send_signal(signal.SIGTERM)
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 pass
