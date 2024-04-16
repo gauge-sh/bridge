@@ -87,7 +87,7 @@ Bridge assumes the following project structure:
 │   ├── [wsgi.py | asgi.py]
 │   ├── ...
 ├── manage.py
-├── [requirements.txt | pyproject.toml | setup.py]
+├── [requirements.txt | poetry.lock | Pipfile.lock]
 ├── ...
 ```
 
