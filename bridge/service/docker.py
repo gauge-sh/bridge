@@ -99,6 +99,7 @@ class DockerService(ABC, Generic[T_ContainerConfig]):
                     **self.config.model_dump(),
                     detach=True,
                 )
+            container = cast(Container, container)
             self.container_id = container.id
 
     @abstractmethod

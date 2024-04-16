@@ -1,8 +1,11 @@
 import os
 import signal
+from typing import cast
 
 import docker
 import psutil
+from docker.errors import NotFound
+from docker.models.containers import Container
 
 from bridge.console import log_task
 from bridge.utils.filesystem import resolve_dot_bridge
@@ -20,8 +23,9 @@ def stop():
                     cid = cid.strip()
                     try:
                         container = docker_client.containers.get(cid)
+                        container = cast(Container, container)
                         container.stop()
-                    except docker.errors.NotFound:
+                    except NotFound:
                         pass
             os.remove(cid_path)
         # Processes - celery, flower
