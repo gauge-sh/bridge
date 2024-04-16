@@ -17,7 +17,6 @@ def stop():
             docker_client = docker.from_env()
             with open(cid_path) as f:
                 for cid in f.readlines():
-                    print(cid)
                     cid = cid.strip()
                     try:
                         container = docker_client.containers.get(cid)
