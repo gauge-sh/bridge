@@ -1,11 +1,12 @@
-import contextlib
 import os
+import signal
 import socket
 import subprocess
 import sys
 from time import sleep
 from typing import Any
 
+import psutil
 from rich.console import Console
 
 from bridge.config import get_config
@@ -146,18 +147,28 @@ class DjangoHandler(FrameWorkHandler):
             with log_task("Starting local worker", "Local worker started"):
                 from bridge.service.django_celery import app
 
-                # Check if celery is already running
-                if not app.control.inspect().ping():
-                    subprocess.Popen(
-                        "nohup "
-                        "celery -A bridge.service.django_celery worker -c 1 -l INFO"
-                        " > /dev/null 2>&1 &",
-                        shell=True,
-                        stdin=subprocess.DEVNULL,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.STDOUT,
-                        start_new_session=True,
-                    )
+                # Kill any active celery processes
+                for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+                    try:
+                        proc_name = proc.info["cmdline"]
+                        if (
+                            proc_name
+                            and "bridge.service.django_celery" in proc_name
+                            and "worker" in proc_name
+                        ):
+                            proc.send_signal(signal.SIGTERM)
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        pass
+                subprocess.Popen(
+                    "nohup "
+                    "celery -A bridge.service.django_celery worker -c 1 -l INFO"
+                    " > /dev/null 2>&1 &",
+                    shell=True,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.STDOUT,
+                    start_new_session=True,
+                )
                 while not app.control.inspect().ping():
                     # Wait for celery to start
                     sleep(0.1)
@@ -175,20 +186,30 @@ class DjangoHandler(FrameWorkHandler):
                 "[white]bridge_flower[/white]..."
             )
             with log_task("Starting flower", "Flower started"):
-                # Account for flower already running
-                with contextlib.suppress(OSError):
-                    dot_bridge_path = resolve_dot_bridge() / "flower_db"
-                    subprocess.Popen(
-                        "nohup "
-                        "celery -A bridge.service.django_celery flower "
-                        f"--persistent=True --db='{dot_bridge_path}'"
-                        " > /dev/null 2>&1 &",
-                        shell=True,
-                        stdin=subprocess.DEVNULL,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.STDOUT,
-                        start_new_session=True,
-                    )
+                # Kill any active flower process
+                for proc in psutil.process_iter(["pid", "name", "cmdline"]):
+                    try:
+                        proc_name = proc.info["cmdline"]
+                        if (
+                            proc_name
+                            and "bridge.service.django_celery" in proc_name
+                            and "flower" in proc_name
+                        ):
+                            proc.send_signal(signal.SIGTERM)
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        pass
+                dot_bridge_path = resolve_dot_bridge() / "flower_db"
+                subprocess.Popen(
+                    "nohup "
+                    "celery -A bridge.service.django_celery flower "
+                    f"--persistent=True --db='{dot_bridge_path}'"
+                    " > /dev/null 2>&1 &",
+                    shell=True,
+                    stdin=subprocess.DEVNULL,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.STDOUT,
+                    start_new_session=True,
+                )
                 port_bound = False
                 while not port_bound:
                     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
