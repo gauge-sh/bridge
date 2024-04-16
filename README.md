@@ -5,7 +5,7 @@
 [![Checked with pyright](https://microsoft.github.io/pyright/img/pyright_badge.svg)](https://microsoft.github.io/pyright/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 # bridge
-Fully automate your local and deployed infrastructure.
+Fully automate your infrastructure for Django.
 
 ![](https://raw.githubusercontent.com/Never-Over/bridge/main/docs/runserver_demo.gif)
 
