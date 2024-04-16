@@ -29,6 +29,7 @@ def stop():
                         pass
             os.remove(cid_path)
         # Processes - celery, flower
+        # TODO make this a helper method
         for proc in psutil.process_iter(["pid", "name", "cmdline"]):
             try:
                 # Check if the name fragment is in the command line; this field is a list
