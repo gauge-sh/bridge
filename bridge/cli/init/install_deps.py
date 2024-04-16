@@ -26,7 +26,8 @@ def install_dependencies():
     else:
         print(
             "No dependency file found."
-            "Please ensure your dependency file is in the current directory."
+            " Please make sure you have a"
+            " requirements.txt, Pipfile.lock, or poetry.lock file in the root of your project"
         )
 
 
