@@ -46,16 +46,24 @@ def detect_django_settings_module(project_name: str = "") -> str:
                 )
 
 
-def detect_application_callable(project_name: str = "") -> str:
+class ApplicationCallable(BaseModel):
+    path: str
+    is_asgi: bool = False
+
+
+def detect_application_callable(project_name: str = "") -> ApplicationCallable:
     project_path = Path(project_name)
     wsgi_path = project_path / "wsgi.py"
     asgi_path = project_path / "asgi.py"
     if os.path.exists(wsgi_path):
-        return f"{project_name}.wsgi:application"
+        return ApplicationCallable(path=f"{project_name}.wsgi:application")
     elif os.path.exists(asgi_path):
-        return f"{project_name}.asgi:application"
+        return ApplicationCallable(
+            path=f"{project_name}.asgi:application", is_asgi=True
+        )
 
     # If we haven't returned yet, it means we could not auto-detect the callable
+    application_callable: Optional[ApplicationCallable] = None
     while True:
         user_input = console.input(
             "Please provide the path to your WSGI or ASGI application callable "
@@ -66,7 +74,10 @@ def detect_application_callable(project_name: str = "") -> str:
             callable_name = "application"  # Default to 'application' if not provided
         try:
             if find_spec(module_path) is not None:
-                return f"{module_path}:{callable_name}"
+                application_callable = ApplicationCallable(
+                    path=f"{module_path}:{callable_name}"
+                )
+                break
             else:
                 console.print(
                     f"The module '{module_path}' could not be found or imported."
@@ -78,6 +89,12 @@ def detect_application_callable(project_name: str = "") -> str:
                 " Please try again."
             )
 
+    # If we have gotten here, it is because we have a valid application callable from user input
+    application_callable.is_asgi = Confirm.ask(
+        "Is this an ASGI application?", console=console
+    )
+    return application_callable
+
 
 class DjangoConfig(BaseModel):
     settings_module: str
@@ -87,6 +104,7 @@ class RenderPlatformInitConfig(BaseModel):
     framework: Framework = Framework.DJANGO
     project_name: str
     app_path: str
+    is_asgi: bool = False
     bridge_path: str
     enable_postgres: bool = True
     enable_worker: bool = True
@@ -107,7 +125,8 @@ def build_render_init_config(
     bridge_path = resolve_dot_bridge()
     init_config = RenderPlatformInitConfig(
         project_name=project_name,
-        app_path=app_path,
+        app_path=app_path.path,
+        is_asgi=app_path.is_asgi,
         bridge_path=str(bridge_path),
         enable_postgres=bridge_config.enable_postgres,
         enable_worker=bridge_config.enable_worker,
@@ -177,7 +196,7 @@ class StartSh(TemplatedFile):
 
     @classmethod
     def build(cls, config: RenderPlatformInitConfig) -> str:
-        return start_sh_template(app_path=config.app_path)
+        return start_sh_template(app_path=config.app_path, is_asgi=config.is_asgi)
 
 
 class StartWorkerSh(TemplatedFile):
