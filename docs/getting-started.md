@@ -21,7 +21,8 @@ Adding bridge to your project is incredibly simple.
 
 Add the following code to the end of your `settings.py` file (or `DJANGO_SETTINGS_MODULE`):
 ```python
-# Configure infrastructure with Bridge. All other settings should be above this line.
+# Configure infrastructure with Bridge.
+# All other settings should be above these lines.
 from bridge.django import configure
 
 configure(locals())
@@ -45,7 +46,7 @@ Setting up service bridge_celery...
 [12:00:00] ✓ Local worker started
 Service bridge_celery started!
 Setting up service bridge_flower...
-[00:02:52] ✓ Flower started
+[12:00:00] ✓ Flower started
 Service bridge_flower started!
 Performing system checks...
 
@@ -72,8 +73,9 @@ To deploy your application to the world, simply click the button! Bridge will co
 
 In the future, we'll look into supporting more deployment runtimes such as Heroku, AWS, GCP, Azure, and more.
 
-> [!IMPORTANT]
-> Bridge currently assumes assumptions about your project structure as outlined below. If your project does not follow these conventions, you may need to adjust the generated files before deploying.
+!!! note
+
+    Bridge currently assumes assumptions about your project structure as outlined below. If your project does not follow these conventions, you may need to adjust the generated files before deploying.
 
 ### Project Structure
 

@@ -2,7 +2,7 @@
 
 Automate your local and deployed infra in one line.
 
-#todo add gif
+![](https://raw.githubusercontent.com/Never-Over/bridge/main/docs/runserver_demo.gif)
 
 
 ## What is bridge?

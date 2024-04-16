@@ -5,6 +5,7 @@ repo_name: bridge
 repo_url: https://github.com/Never-Over/bridge
 nav:
   - index.md
+  - getting-started.md
   - faq.md
 theme:
   palette:
@@ -47,6 +48,8 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.details
+  - admonition
 extra:
   social:
     - icon: fontawesome/solid/envelope

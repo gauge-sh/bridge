@@ -24,4 +24,4 @@ Locally, bridge provides access to a psql shell through `bridge db shell`. Remot
 Bridge provides access to redis-cli through `bridge redis shell`. Remotely, [Render has instructions for connecting](https://docs.render.com/redis#connecting-using-redis-cli).
 
 ### How can I access Celery?
-Flower is a web interface into all the information you need to debug and work with Celery. By default, bridge will run Flower on http://localhost:5000.
+Flower is a web interface into all the information you need to debug and work with Celery. By default, bridge will run Flower on http://localhost:5555.
