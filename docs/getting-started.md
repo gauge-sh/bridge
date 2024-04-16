@@ -84,6 +84,7 @@ Bridge assumes the following project structure:
 <project root>/
 ├── <your app>/
 │   ├── settings.py
+│   ├── [wsgi.py | asgi.py]
 │   ├── ...
 ├── manage.py
 ├── [requirements.txt | pyproject.toml | setup.py]
