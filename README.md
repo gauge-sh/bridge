@@ -29,7 +29,7 @@ Install bridge:
 pip install python-bridge
 ```
 ### Usage
-Adding bridge to your project is incredibly simple:
+Add the following code to the end of your `settings.py` file (or `DJANGO_SETTINGS_MODULE`):
 ```python
 from bridge.django import configure
 
@@ -70,7 +70,8 @@ Bridge can also handle deployed configuration for your app as well! Simply run:
 ```bash
 bridge init render
 ```
-You may be prompted for the entrypoint of your application and settings file if bridge cannot detect them.
+You may be prompted for the entrypoint of your application and settings file if bridge cannot detect them. 
+Bridge will create all the configuration necessary for you to immediately deploy to [Render](https://render.com/). This includes a Blueprint `render.yaml` as well as build scripts and start scripts for your Django application.
 After running `bridge init render`, commit the changes and visit your project on github. You will see the following button at the end of your README in the root of your repository:
 
 ![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)
