@@ -56,7 +56,7 @@ Quit the server with CONTROL-C.
 That's it! You now have all the local infrastructure you need to run your django application.
 
 ### Deploys
-Bridge can also handle deployed configuration for your app as well! Simply run:
+Bridge can handle deployed configuration for your app too! Simply run:
 ```bash
 bridge init render
 ```
@@ -64,10 +64,28 @@ You may be prompted for the entrypoint of your application and settings file if 
 
 Bridge will create all the configuration necessary for you to immediately deploy to [Render](https://render.com/). This includes a Blueprint `render.yaml` as well as build scripts and start scripts for your Django application.
 
-After running `bridge init render`, commit the changes and visit your project on github. You will see the following button at the end of your README in the root of your repository:
+After running `bridge init render`, commit the changes and visit your project on GitHub. You will see the following button at the end of your README in the root of your repository:
 
 ![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)
 
 To deploy your application to the world, simply click the button! Bridge will configure everything needed for Render to deploy and host your app.
 
 In the future, we'll look into supporting more deployment runtimes such as Heroku, AWS, GCP, Azure, and more.
+
+> [!IMPORTANT]
+> Bridge currently assumes assumptions about your project structure as outlined below. If your project does not follow these conventions, you may need to adjust the generated files before deploying.
+
+### Project Structure
+
+Bridge assumes the following project structure:
+```
+<project root>/
+├── <your app>/
+│   ├── settings.py
+│   ├── ...
+├── manage.py
+├── [requirements.txt | pyproject.toml | setup.py]
+├── ...
+```
+
+This structure is the default for Django projects created with `django-admin startproject`. The generated build script in `bridge-django-render/build.sh` may need changes if your project structure differs significantly.
