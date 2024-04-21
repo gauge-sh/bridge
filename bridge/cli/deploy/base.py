@@ -45,7 +45,12 @@ class DeployHandler(ABC):
                 for file_path in self.project_root.rglob(
                     "*"
                 ):  # TODO add .gitignore support
-                    if file_path.is_file():
+                    if (
+                        not ".venv" in str(file_path)
+                        and not ".idea" in str(file_path)
+                        and not ".bridge" in str(file_path)
+                        and file_path.is_file()
+                    ):
                         zipf.write(file_path, file_path.relative_to(self.project_root))
         return zip_path
 
@@ -111,6 +116,6 @@ class DeployHandler(ABC):
                 self.project_root.name
             )  # TODO we should infer an asgi or wsgi entrypoint
             self.trigger(project_name=project_name, source_url=url)
-            deployment_url = self.retrieve()
+            self.retrieve()
         console.print(f"[bold white]{self.deploy_name[:8]} [bold green]deployed!")
-        console.print(f"[blue]https://{deployment_url if deployment_url else DEMO_URL}")
+        console.print(f"[blue]https://{DEMO_URL}")
