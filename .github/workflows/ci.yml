@@ -56,5 +56,5 @@ jobs:
     - name: Run tach
       run: |
         source .venv/bin/activate
-        pytest -s -vv
+        tach check
       
