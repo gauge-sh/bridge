@@ -1,0 +1,32 @@
+constraints:
+  bridge:
+    depends_on:
+    - bridge.framework
+  bridge.cli:
+    depends_on:
+    - bridge
+    - bridge.framework
+    - bridge.service
+    - bridge.utils
+  bridge.framework:
+    depends_on:
+    - bridge.platform
+    - bridge
+    - bridge.service
+    - bridge.utils
+  bridge.platform:
+    depends_on:
+    - bridge.service
+    - bridge
+  bridge.service:
+    depends_on:
+    - bridge.platform
+    - bridge
+    - bridge.utils
+  bridge.utils:
+    depends_on:
+    - bridge
+exclude:
+- tests
+- docs
+exclude_hidden_paths: true
