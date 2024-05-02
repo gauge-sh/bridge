@@ -31,7 +31,7 @@ jobs:
       run: |
         python -m pip install uv
         uv venv
-        uv pip install ruff pytest pytest-mock coverage pyright django-stubs
+        uv pip install -r dev-requirements.txt
         uv pip install .
     - name: Check ruff
       run: |
@@ -53,3 +53,8 @@ jobs:
       run: |
         source .venv/bin/activate
         pytest -s -vv
+    - name: Run tach
+      run: |
+        source .venv/bin/activate
+        tach check
+      
