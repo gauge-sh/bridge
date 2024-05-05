@@ -33,7 +33,7 @@ pip install python-bridge
 ### Usage
 Add the following code to the end of your `settings.py` file (or `DJANGO_SETTINGS_MODULE`):
 ```python
-from bridge.django import configure
+from bridge.framework.django import configure
 
 configure(locals())
 ```

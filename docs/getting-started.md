@@ -23,7 +23,7 @@ Add the following code to the end of your `settings.py` file (or `DJANGO_SETTING
 ```python
 # Configure infrastructure with Bridge.
 # All other settings should be above these lines.
-from bridge.django import configure
+from bridge.framework.django import configure
 
 configure(locals())
 ```
