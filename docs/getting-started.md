@@ -23,9 +23,9 @@ Add the following code to the end of your `settings.py` file (or `DJANGO_SETTING
 ```python
 # Configure infrastructure with Bridge.
 # All other settings should be above these lines.
-from bridge.framework.django import configure
+from bridge import django
 
-configure(locals())
+django.configure(locals())
 ```
 
 The next time you start up your application, bridge will create and configure local infrastructure for you:
