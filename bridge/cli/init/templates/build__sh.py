@@ -5,7 +5,7 @@ template = """#!/usr/bin/env bash
 set -o errexit
 
 # Get the directory of the current script.
-DIR=$(dirname "$0")
+DIR="$(dirname "$0")"
 
 # Use our Python script to install dependencies
 INSTALL_DEPS_SCRIPT="$DIR/install_deps.py"
