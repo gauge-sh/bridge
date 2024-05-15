@@ -9,7 +9,7 @@ Fully automate your infrastructure for Django.
 
 ![](https://raw.githubusercontent.com/Never-Over/bridge/main/docs/runserver_demo.gif)
 
-[Full Documentation](https://never-over.github.io/bridge/)
+[Full Documentation](https://gauge-sh.github.io/bridge/)
 
 ### What is bridge?
 Bridge enables you to seamlessly run and deploy all the infrastructure you need for a complete Django project.
