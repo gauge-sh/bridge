@@ -5,9 +5,29 @@ constraints:
 - tag: bridge.cli
   depends_on:
   - bridge
+  - bridge.cli.db
+  - bridge.cli.init
+  - bridge.cli.redis
   - bridge.framework
   - bridge.service
   - bridge.utils
+- tag: bridge.cli.db
+  depends_on:
+  - bridge.service
+- tag: bridge.cli.init
+  depends_on:
+  - bridge
+  - bridge.cli
+  - bridge.cli.init.templates
+  - bridge.framework
+  - bridge.utils
+- tag: bridge.cli.init.templates
+  depends_on:
+  - bridge.framework
+  - bridge.utils
+- tag: bridge.cli.redis
+  depends_on:
+  - bridge.service
 - tag: bridge.framework
   depends_on:
   - bridge
@@ -17,6 +37,11 @@ constraints:
 - tag: bridge.platform
   depends_on:
   - bridge
+  - bridge.platform.render
+  - bridge.service
+- tag: bridge.platform.render
+  depends_on:
+  - bridge.platform
   - bridge.service
 - tag: bridge.service
   depends_on:
@@ -27,7 +52,7 @@ constraints:
   depends_on:
   - bridge
 exclude:
-- docs
 - tests
+- docs
 exclude_hidden_paths: true
 ignore_type_checking_imports: false
