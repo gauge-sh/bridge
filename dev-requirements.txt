@@ -1,8 +1,9 @@
-ruff==0.4.7
+ruff~=0.4.7
 pytest==8.1.1
 pytest-mock==3.14.0
 django-stubs==4.2.7
 pyright==1.1.360
 coverage==7.4.4
 tach==0.1.2
-pre-commit==3.7.1
+pre-commit~=3.7.1
+types-psutil~=5.9.5.20240516

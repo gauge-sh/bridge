@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from time import sleep, time
@@ -10,6 +11,8 @@ from bridge.console import log_error, log_task
 from bridge.service.docker import ContainerConfig, DockerService
 from bridge.utils.filesystem import resolve_dot_bridge
 
+logger = logging.getLogger(__name__)
+
 
 class PostgresEnvironment(BaseModel):
     POSTGRES_USER: str = "postgres"
@@ -17,6 +20,23 @@ class PostgresEnvironment(BaseModel):
     POSTGRES_DB: str = "postgres"
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: str = "5432"
+
+    @property
+    def dsn(self) -> str:
+        return (
+            f"dbname={self.POSTGRES_DB} "
+            f"user={self.POSTGRES_USER} "
+            f"password={self.POSTGRES_PASSWORD} "
+            f"host={self.POSTGRES_HOST} "
+            f"port={self.POSTGRES_PORT}"
+        )
+
+    @property
+    def database_url(self) -> str:
+        return (
+            f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        )
 
 
 class PostgresConfig(ContainerConfig[PostgresEnvironment]):
@@ -41,13 +61,9 @@ class PostgresService(DockerService[PostgresConfig]):
         super().__init__(client, config or PostgresConfig())
 
     def ensure_ready(self):
-        dsn = (
-            f"dbname={self.config.environment.POSTGRES_DB} "
-            f"user={self.config.environment.POSTGRES_USER} "
-            f"password={self.config.environment.POSTGRES_PASSWORD} "
-            f"host={self.config.environment.POSTGRES_HOST} "
-            f"port={self.config.environment.POSTGRES_PORT}"
-        )
+        dsn = self.config.environment.dsn
+        msg = f"DSN: {dsn}"
+        print(msg)
         with log_task(
             start_message=f"Waiting for [white]{self.config.name}[/white] to be ready",
             end_message=f"[white]{self.config.name}[/white] is ready",
