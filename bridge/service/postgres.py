@@ -1,12 +1,12 @@
 import os
-from time import sleep
-from typing import Optional, Union
+import sys
+from time import sleep, time
 
-import docker
+import docker  # type: ignore[import-untyped]
 import psycopg
 from pydantic import BaseModel, Field
 
-from bridge.console import log_task
+from bridge.console import log_error, log_task
 from bridge.service.docker import ContainerConfig, DockerService
 from bridge.utils.filesystem import resolve_dot_bridge
 
@@ -23,7 +23,7 @@ class PostgresConfig(ContainerConfig[PostgresEnvironment]):
     image: str = "postgres:12"
     name: str = "bridge_postgres"
     ports: dict[str, int] = {"5432/tcp": 5432}
-    volumes: dict[str, Union[list[str], dict[str, str]]] = Field(
+    volumes: dict[str, list[str] | dict[str, str]] = Field(
         default_factory=lambda: {
             str(resolve_dot_bridge() / "pgdata"): {
                 "bind": "/var/lib/postgresql/data",
@@ -36,7 +36,7 @@ class PostgresConfig(ContainerConfig[PostgresEnvironment]):
 
 class PostgresService(DockerService[PostgresConfig]):
     def __init__(
-        self, client: docker.DockerClient, config: Optional[PostgresConfig] = None
+        self, client: docker.DockerClient, config: PostgresConfig | None = None
     ) -> None:
         super().__init__(client, config or PostgresConfig())
 
@@ -52,7 +52,14 @@ class PostgresService(DockerService[PostgresConfig]):
             start_message=f"Waiting for [white]{self.config.name}[/white] to be ready",
             end_message=f"[white]{self.config.name}[/white] is ready",
         ):
+            timeout = 30  # Set the timeout value in seconds
+            start_time = time()  # Get the current time
+
             while True:
+                if time() - start_time > timeout:
+                    log_error("Not getting a response from the database. Exiting...")
+                    sys.exit(1)
+
                 try:
                     with psycopg.connect(dsn) as conn, conn.cursor() as cur:
                         cur.execute("SELECT 1")
