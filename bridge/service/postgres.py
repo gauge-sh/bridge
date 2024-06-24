@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import os
 import sys
@@ -7,7 +9,7 @@ import docker  # type: ignore[import-untyped]
 import psycopg
 from pydantic import BaseModel, Field
 
-from bridge.console import log_error, log_task
+from bridge.console import log_error, log_info, log_task
 from bridge.service.docker import ContainerConfig, DockerService
 from bridge.utils.filesystem import resolve_dot_bridge
 
@@ -63,7 +65,7 @@ class PostgresService(DockerService[PostgresConfig]):
     def ensure_ready(self):
         dsn = self.config.environment.dsn
         msg = f"DSN: {dsn}"
-        print(msg)
+        log_info(msg)
         with log_task(
             start_message=f"Waiting for [white]{self.config.name}[/white] to be ready",
             end_message=f"[white]{self.config.name}[/white] is ready",

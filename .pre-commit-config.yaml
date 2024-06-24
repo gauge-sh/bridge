@@ -26,13 +26,13 @@ repos:
     hooks:
     - id: check-json5
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.4.7
+    rev: v0.4.10
     hooks:
     - id: ruff
       args: [--fix, --exit-non-zero-on-fix]
     - id: ruff-format
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.2
+    rev: v3.16.0
     hooks:
     -   id: pyupgrade
-        args: [--py311-plus,--py36-plus,--py37-plus,--py38-plus,--py39-plus,--py310-plus,--py311-plus,--py312-plus]
+        args: [--py36-plus,--py37-plus,--py38-plus,--py39-plus,--py310-plus,--py311-plus,--py312-plus]
