@@ -1,9 +1,9 @@
 import sys
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Generic, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
-import docker
-from docker.models.containers import Container
+import docker  # type: ignore[import-untyped]
+from docker.models.containers import Container  # type: ignore[import-untyped]
 from pydantic import BaseModel, Field
 from rich.console import Console
 
@@ -12,7 +12,7 @@ from bridge.utils.filesystem import resolve_dot_bridge
 from bridge.utils.pydantic import Empty
 
 if TYPE_CHECKING:
-    import docker.errors
+    import docker.errors  # type: ignore[import-untyped]
 
 
 def get_docker_client() -> docker.DockerClient:
@@ -38,9 +38,31 @@ class ContainerConfig(BaseModel, Generic[T_BaseModel]):
     image: str
     name: str
     ports: dict[str, int] = Field(default_factory=dict)
-    volumes: dict[str, Union[list[str], dict[str, str]]] = Field(default_factory=dict)
+    volumes: dict[str, list[str] | dict[str, str]] = Field(default_factory=dict)
     restart_policy: dict[str, str] = {"Name": "always"}
     environment: T_BaseModel = Field(default_factory=Empty)
+
+    def container_kwargs(self) -> dict[str, Any]:
+        """Return the kwargs to pass to `docker.containers.run`.
+
+        Equivalent to `ContainerConfig.model_dump()` but more explicit. Uses it internally but
+        fields are explicit.
+
+        Usage:
+        ```python
+        config = ContainerConfig(...)
+        container = self.client.containers.run(
+            **self.config.container_kwargs(),
+            detach=True,
+        )
+        ```
+
+        Returns:
+            dict[str, Any]: kwargs to pass to `docker.containers.run`
+        """
+        return self.model_dump(
+            include={"image", "name", "ports", "volumes", "environment"}
+        )
 
 
 T_ContainerConfig = TypeVar("T_ContainerConfig", bound=ContainerConfig)
@@ -96,7 +118,7 @@ class DockerService(ABC, Generic[T_ContainerConfig]):
                     container.restart()
             else:
                 container = self.client.containers.run(
-                    **self.config.model_dump(),
+                    **self.config.container_kwargs(),
                     detach=True,
                 )
             container = cast(Container, container)

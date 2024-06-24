@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import Any
 
-import docker
+import docker  # type: ignore[import-untyped]
 
 from bridge.config import BridgeConfig
 from bridge.platform import Platform, detect_platform

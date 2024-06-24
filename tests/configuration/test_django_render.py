@@ -1,4 +1,5 @@
 import builtins
+from pathlib import Path
 
 import pytest
 
@@ -113,7 +114,9 @@ def test_configure_secret_key(render_env, django_handler):
 def test_configure_staticfiles(django_handler):
     django_handler.configure_staticfiles(platform=Platform.RENDER)
     assert django_handler.framework_locals.get("STATIC_URL") == "/static/"
-    assert django_handler.framework_locals.get("STATIC_ROOT") == "test/staticfiles"
+    assert Path(django_handler.framework_locals.get("STATIC_ROOT")) == Path(
+        "test/staticfiles"
+    )
     assert (
         django_handler.framework_locals.get("STATICFILES_STORAGE")
         == "whitenoise.storage.CompressedManifestStaticFilesStorage"
